@@ -1,7 +1,7 @@
 import unittest
 
 from path.validator.path_validator import (
-    LinuxInvalidSymbolsPathValidator,
+    LinuxInvalidCharactersPathValidator,
     NonePathValidator,
     NotDirectoryValidator,
     NotExistingPathValidator,
@@ -14,10 +14,10 @@ from path.validator.invalid_characters_for_path_provider import (
 
 class TestPathValidatorManager(unittest.TestCase):
     def setUp(self):
-        invalid_symbols_provider = LinuxInvalidCharactersForPathProvider()
+        invalid_characters_provider = LinuxInvalidCharactersForPathProvider()
         validators = [
             NonePathValidator(),
-            LinuxInvalidSymbolsPathValidator(invalid_symbols_provider),
+            LinuxInvalidCharactersPathValidator(invalid_characters_provider),
             NotExistingPathValidator(),
             NotDirectoryValidator(),
         ]

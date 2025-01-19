@@ -1,14 +1,14 @@
 import unittest
 
 from path.validator.path_exception import (
-    InvalidSymbolsPathException,
+    InvalidCharactersPathException,
     NonePathException,
     NotDirectoryException,
     NotExistingPathException,
 )
 from path.validator.path_validator import (
     IPathValidator,
-    LinuxInvalidSymbolsPathValidator,
+    LinuxInvalidCharactersPathValidator,
     NonePathValidator,
 )
 from path.validator.invalid_characters_for_path_provider import (
@@ -17,42 +17,44 @@ from path.validator.invalid_characters_for_path_provider import (
 )
 
 
-class FakeInvalidSymbolsPathMaker:
-    def __init__(self, invalid_symbols_provider: InvalidCharactersForPathProvider):
-        self.invalid_symbols_provider = invalid_symbols_provider
+class FakeInvalidCharactersPathMaker:
+    def __init__(self, invalid_characters_provider: InvalidCharactersForPathProvider):
+        self.invalid_characters_provider = invalid_characters_provider
 
     def get_invalid_paths(self, path="to/project"):
-        invalid_symbols = self.invalid_symbols_provider.get_characters()
+        invalid_characters = self.invalid_characters_provider.get_characters()
         invalid_paths = []
 
-        for symbol in invalid_symbols:
-            invalid_path = self.__put_symbol_in_center(path, symbol)
+        for character in invalid_characters:
+            invalid_path = self.__put_character_in_center(path, character)
             invalid_paths.append(invalid_path)
 
         return invalid_paths
 
-    def __put_symbol_in_center(self, path, symbol):
+    def __put_character_in_center(self, path, character):
         center_index = int(len(path) / 2)
-        return path[:center_index] + symbol + path[center_index:]
+        return path[:center_index] + character + path[center_index:]
 
 
-class TestLinuxInvalidSymbolsPathValidator(unittest.TestCase):
+class TestLinuxInvalidCharactersPathValidator(unittest.TestCase):
     def setUp(self):
-        self.invalid_symbols_provider = LinuxInvalidCharactersForPathProvider()
-        self.validator = LinuxInvalidSymbolsPathValidator(self.invalid_symbols_provider)
+        self.invalid_characters_provider = LinuxInvalidCharactersForPathProvider()
+        self.validator = LinuxInvalidCharactersPathValidator(
+            self.invalid_characters_provider
+        )
 
-    def test_validate_without_incorrect_symbols(self):
+    def test_validate_without_incorrect_characters(self):
         path = "directory/for/tests/"
 
         self.validator.validate(path)
 
-    def test_validate_with_incorrect_symbols(self):
-        maker = FakeInvalidSymbolsPathMaker(self.invalid_symbols_provider)
+    def test_validate_with_incorrect_characters(self):
+        maker = FakeInvalidCharactersPathMaker(self.invalid_characters_provider)
         path = "directory/for/tests/"
         invalid_paths = maker.get_invalid_paths(path)
 
         for invalid_path in invalid_paths:
-            with self.assertRaises(InvalidSymbolsPathException):
+            with self.assertRaises(InvalidCharactersPathException):
                 self.validator.validate(invalid_path)
 
 

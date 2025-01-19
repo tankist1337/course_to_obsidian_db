@@ -10,5 +10,5 @@ class NonePathException(Exception):
     pass
 
 
-class InvalidSymbolsPathException(Exception):
+class InvalidCharactersPathException(Exception):
     pass

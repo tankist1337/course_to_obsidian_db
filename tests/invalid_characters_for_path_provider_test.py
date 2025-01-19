@@ -19,7 +19,7 @@ class TestLinuxInvalidCharactersForPathProvider(unittest.TestCase):
             "The number of invalid characters is not as expected",
         )
 
-        for symbol in characters_expected:
+        for character in characters_expected:
             self.assertIn(
-                symbol, characters, "The invalid character is not in the list"
+                character, characters, "The invalid character is not in the list"
             )

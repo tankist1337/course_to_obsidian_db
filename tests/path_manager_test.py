@@ -1,9 +1,9 @@
 import unittest
 
 from path.path_manager import PathManager
-from path.provider.path_provider import CliPathProvider, IPathProvider
+from path.provider.path_provider import IPathProvider
 from path.validator.path_validator import (
-    LinuxInvalidSymbolsPathValidator,
+    LinuxInvalidCharactersPathValidator,
     NonePathValidator,
     NotDirectoryValidator,
     NotExistingPathValidator,
@@ -17,10 +17,10 @@ from path.validator.invalid_characters_for_path_provider import (
 class TestPathManager(unittest.TestCase):
     def test_get_path(self):
         path_provider = FakeCliPathProvider()
-        invalid_symbols_provider = LinuxInvalidCharactersForPathProvider()
+        invalid_characters_provider = LinuxInvalidCharactersForPathProvider()
         validators = [
             NonePathValidator(),
-            LinuxInvalidSymbolsPathValidator(invalid_symbols_provider),
+            LinuxInvalidCharactersPathValidator(invalid_characters_provider),
             NotExistingPathValidator(),
             NotDirectoryValidator(),
         ]
