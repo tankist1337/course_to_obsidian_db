@@ -2,7 +2,7 @@ import unittest
 
 from path.validator.path_exception import (
     NonePathException,
-    NotDirectoryException,
+    NonDirectoryPathException,
     NotExistingPathException,
 )
 from path.validator.path_validator import (
@@ -27,30 +27,30 @@ class TestNonePathValidator(unittest.TestCase):
             self.validator.validate(path)
 
 
-class TestNotDirectoryValidator(unittest.TestCase):
+class TestNonDirectoryPathValidator(unittest.TestCase):
     def test_validate_is_directory(self):
-        validator = FakeNotDirectoryValidator(is_dir=True)
+        validator = FakeNonDirectoryPathValidator(is_dir=True)
 
         path = "directory/for/tests/"
 
         validator.validate(path)
 
     def test_validate_is_not_directory(self):
-        validator = FakeNotDirectoryValidator(is_dir=False)
+        validator = FakeNonDirectoryPathValidator(is_dir=False)
 
         path = "directory/for/tests/raise.txt"
 
-        with self.assertRaises(NotDirectoryException):
+        with self.assertRaises(NonDirectoryPathException):
             validator.validate(path)
 
 
-class FakeNotDirectoryValidator(IPathValidator):
+class FakeNonDirectoryPathValidator(IPathValidator):
     def __init__(self, is_dir=True):
         self.is_dir = is_dir
 
     def validate(self, path):
         if not self.is_dir:
-            raise NotDirectoryException("The directory path is not a directory")
+            raise NonDirectoryPathException("The directory path is not a directory")
 
 
 class TestNotExistingPathValidator(unittest.TestCase):

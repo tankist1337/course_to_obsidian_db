@@ -3,7 +3,7 @@ import os
 
 from path.validator.path_exception import (
     NonePathException,
-    NotDirectoryException,
+    NonDirectoryPathException,
     NotExistingPathException,
 )
 
@@ -21,10 +21,10 @@ class NonePathValidator(IPathValidator):
 
 
 # todo: Review this class os.path.isdir
-class NotDirectoryValidator(IPathValidator):
+class NonDirectoryPathValidator(IPathValidator):
     def validate(self, path):
         if not os.path.isdir(path):
-            raise NotDirectoryException("The directory path is not a directory")
+            raise NonDirectoryPathException("The directory path is not a directory")
 
 
 # todo: Review this class os.path.exists

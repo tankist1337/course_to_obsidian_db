@@ -1,4 +1,4 @@
-class NotDirectoryException(Exception):
+class NonDirectoryPathException(Exception):
     pass
 
 
