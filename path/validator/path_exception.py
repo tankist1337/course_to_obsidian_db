@@ -8,7 +8,3 @@ class NotExistingPathException(Exception):
 
 class NonePathException(Exception):
     pass
-
-
-class InvalidCharactersPathException(Exception):
-    pass

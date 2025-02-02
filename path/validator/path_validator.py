@@ -2,13 +2,9 @@ from abc import ABC, abstractmethod
 import os
 
 from path.validator.path_exception import (
-    InvalidCharactersPathException,
     NonePathException,
     NotDirectoryException,
     NotExistingPathException,
-)
-from path.validator.invalid_characters_for_path_provider import (
-    InvalidCharactersForPathProvider,
 )
 
 
@@ -16,20 +12,6 @@ class IPathValidator(ABC):
     @abstractmethod
     def validate(path):
         pass
-
-
-class LinuxInvalidCharactersPathValidator(IPathValidator):
-    def __init__(self, invalid_characters_provider: InvalidCharactersForPathProvider):
-        self.invalid_characters_provider = invalid_characters_provider
-
-    def validate(self, path):
-        invalid_characters = self.invalid_characters_provider.get_characters()
-
-        for character in invalid_characters:
-            if character in path:
-                raise InvalidCharactersPathException(
-                    f"The directory path has incorrect character: {character}"
-                )
 
 
 class NonePathValidator(IPathValidator):

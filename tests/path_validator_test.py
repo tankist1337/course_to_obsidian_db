@@ -1,61 +1,14 @@
 import unittest
 
 from path.validator.path_exception import (
-    InvalidCharactersPathException,
     NonePathException,
     NotDirectoryException,
     NotExistingPathException,
 )
 from path.validator.path_validator import (
     IPathValidator,
-    LinuxInvalidCharactersPathValidator,
     NonePathValidator,
 )
-from path.validator.invalid_characters_for_path_provider import (
-    InvalidCharactersForPathProvider,
-    LinuxInvalidCharactersForPathProvider,
-)
-
-
-class FakeInvalidCharactersPathMaker:
-    def __init__(self, invalid_characters_provider: InvalidCharactersForPathProvider):
-        self.invalid_characters_provider = invalid_characters_provider
-
-    def get_invalid_paths(self, path="to/project"):
-        invalid_characters = self.invalid_characters_provider.get_characters()
-        invalid_paths = []
-
-        for character in invalid_characters:
-            invalid_path = self.__put_character_in_center(path, character)
-            invalid_paths.append(invalid_path)
-
-        return invalid_paths
-
-    def __put_character_in_center(self, path, character):
-        center_index = int(len(path) / 2)
-        return path[:center_index] + character + path[center_index:]
-
-
-class TestLinuxInvalidCharactersPathValidator(unittest.TestCase):
-    def setUp(self):
-        self.invalid_characters_provider = LinuxInvalidCharactersForPathProvider()
-        self.validator = LinuxInvalidCharactersPathValidator(
-            self.invalid_characters_provider
-        )
-
-    def test_validate_without_incorrect_characters(self):
-        path = "directory/for/tests/"
-
-        self.validator.validate(path)
-
-    def test_validate_with_incorrect_characters(self):
-        maker = FakeInvalidCharactersPathMaker(self.invalid_characters_provider)
-        path = "directory/for/tests/"
-        invalid_paths = maker.get_invalid_paths(path)
-
-        for invalid_path in invalid_paths:
-            with self.assertRaises(InvalidCharactersPathException):
-                self.validator.validate(invalid_path)
 
 
 class TestNonePathValidator(unittest.TestCase):
