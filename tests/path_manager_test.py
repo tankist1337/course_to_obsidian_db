@@ -1,5 +1,6 @@
 import unittest
 
+from base.validator import ValidatorManager
 from path.path_manager import PathManager
 from path.provider.path_provider import IPathProvider
 from path.validator.path_validator import (
@@ -7,7 +8,6 @@ from path.validator.path_validator import (
     NonDirectoryPathValidator,
     NotExistingPathValidator,
 )
-from path.validator.path_validator_manager import PathValidatorManager
 
 
 class TestPathManager(unittest.TestCase):
@@ -18,7 +18,7 @@ class TestPathManager(unittest.TestCase):
             NotExistingPathValidator(),
             NonDirectoryPathValidator(),
         ]
-        path_validator_manager = PathValidatorManager(validators)
+        path_validator_manager = ValidatorManager[str](validators)
         path_manager = PathManager(path_provider, path_validator_manager)
 
         path = path_manager.get()

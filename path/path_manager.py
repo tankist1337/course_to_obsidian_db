@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
+from base.validator import IValidator
 from path.provider.path_provider import IPathProvider
-from path.validator.path_validator_manager import IPathValidatorManager
 
 
 class IPathManager(ABC):
@@ -14,7 +14,7 @@ class PathManager(IPathManager):
     def __init__(
         self,
         path_provider: IPathProvider,
-        path_validator_manager: IPathValidatorManager,
+        path_validator_manager: IValidator[str],
     ):
         self.path_provider = path_provider
         self.path_validator_manager = path_validator_manager
