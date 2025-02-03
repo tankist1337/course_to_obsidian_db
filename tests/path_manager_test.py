@@ -21,11 +21,11 @@ class TestPathManager(unittest.TestCase):
         path_validator_manager = PathValidatorManager(validators)
         path_manager = PathManager(path_provider, path_validator_manager)
 
-        path = path_manager.get_path()
+        path = path_manager.get()
 
         self.assertEqual(path, "directory/for/tests/")
 
 
 class FakeCliPathProvider(IPathProvider):
-    def get_path(self) -> str:
+    def get(self) -> str:
         return "directory/for/tests/"

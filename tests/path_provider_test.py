@@ -11,19 +11,19 @@ class TestCliPathProvider(unittest.TestCase):
         "argparse.ArgumentParser.parse_args",
         return_value=argparse.Namespace(path="/home/course/path"),
     )
-    def test_get_path(self, mock_parse_args):
+    def test_get(self, mock_parse_args):
         provider = CliPathProvider()
 
-        path = provider.get_path()
+        path = provider.get()
 
         self.assertEqual(path, "/home/course/path")
 
     @patch(
         "argparse.ArgumentParser.parse_args", return_value=argparse.Namespace(path=None)
     )
-    def test_get_path_with_none(self, mock_parse_args):
+    def test_get_with_none(self, mock_parse_args):
         provider = CliPathProvider()
 
-        path = provider.get_path()
+        path = provider.get()
 
         self.assertIsNone(path)
