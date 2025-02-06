@@ -1,5 +1,7 @@
 import unittest
 
+from entry.entry import FileSystemEntry
+from entry.entry_validator import EntryAdapterForPathValidator
 from path.validator.path_exception import (
     NonePathException,
     NonDirectoryPathException,
@@ -81,3 +83,35 @@ class FakeNonDirectoryPathValidator(IPathValidator):
         else:
             # All paths are directories
             pass
+
+
+class TestEntryAdapterForPathValidator(unittest.TestCase):
+    def setUp(self):
+        self.path_validator = FakePathValidator()
+        self.entry_validator = EntryAdapterForPathValidator(self.path_validator)
+
+    def test_validate(self):
+        name = "subdirectory1"
+        directory_path = "directory/for/tests/"
+        path = directory_path + name
+        entry = FileSystemEntry(name, directory_path, path)
+
+        self.entry_validator.validate(entry)
+
+        self.path_validator.assert_called_times(1)
+        self.path_validator.assert_called_with(entry.path)
+
+
+class FakePathValidator(IPathValidator, unittest.TestCase):
+    __called_with = []
+    __called_times = 0
+
+    def assert_called_times(self, expected: int):
+        self.assertEqual(self.__called_times, expected)
+
+    def assert_called_with(self, expected: str):
+        self.assertIn(expected, self.__called_with)
+
+    def validate(self, item):
+        self.__called_with.append(item)
+        self.__called_times += 1
