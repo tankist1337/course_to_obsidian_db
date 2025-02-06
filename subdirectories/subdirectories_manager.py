@@ -6,9 +6,7 @@ from entry.converter.entry_converter import IEntryConverter
 from entry.entry import Directory
 from path.validator.path_validator import IPathValidator
 from subdirectories.directory_filter import IDirectoryFilter
-from subdirectories.provider.string_entry_names_provider import (
-    IStringEntryNamesProvider,
-)
+from subdirectories.provider.entry_names_provider import IEntryNamesProvider
 from subdirectories.validator.subdirectories_validator import ISubdirectoriesValidator
 
 
@@ -38,7 +36,7 @@ class SubdirectoriesProvider(ISubdirectoriesProvider):
         directory_filter: IDirectoryFilter,
         converter: IEntryConverter,
         validator: IPathValidator,
-        entry_names_provider: IStringEntryNamesProvider,
+        entry_names_provider: IEntryNamesProvider,
     ):
         self.directory_filter = directory_filter
         self.converter = converter

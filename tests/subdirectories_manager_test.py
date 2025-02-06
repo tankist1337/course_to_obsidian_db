@@ -28,8 +28,8 @@ from entry.separator_provider import LinuxSeparatorProvider
 from path.validator.path_exception import NotExistingPathException
 from subdirectories.directory_filter import DirectoryFilter
 from subdirectories.entry_factory import DirectoryFactory
-from subdirectories.provider.string_entry_names_provider import (
-    OsListdirStringEntryNamesProvider,
+from subdirectories.provider.entry_names_provider import (
+    OsListdirEntryNamesProvider,
 )
 from subdirectories.subdirectories_exception import NoSubdirectoriesException
 from subdirectories.subdirectories_manager import (
@@ -86,7 +86,7 @@ class TestSubdirectoriesManager(unittest.TestCase):
             validators=provider_validators
         )
 
-        self.entry_names_provider = FakeOsListdirStringEntryNamesProvider()
+        self.entry_names_provider = FakeOsListdirEntryNamesProvider()
 
         self.provider = SubdirectoriesProvider(
             directory_filter=directory_filter,
@@ -102,9 +102,9 @@ class TestSubdirectoriesManager(unittest.TestCase):
 
     def test_get(self):
         self.entry_names_provider.set_strategy(FakeGoodEntryNamesStrategy())
-        string_entry_names = self.entry_names_provider.get(self.directory_path)
+        entry_names = self.entry_names_provider.get(self.directory_path)
         entries = self.converter.convert(
-            ListEntryArguments(string_entry_names, self.directory_path)
+            ListEntryArguments(entry_names, self.directory_path)
         )
         self.non_directory_validator.directory_entries_dictionary = {
             entry: "directory" in entry.name for entry in entries
@@ -126,9 +126,9 @@ class TestSubdirectoriesManager(unittest.TestCase):
 
     def test_get_with_empty_directory(self):
         self.entry_names_provider.set_strategy(FakeNoDirectoriesStrategy())
-        string_entry_names = self.entry_names_provider.get(self.directory_path)
+        entry_names = self.entry_names_provider.get(self.directory_path)
         entries = self.converter.convert(
-            ListEntryArguments(string_entry_names, self.directory_path)
+            ListEntryArguments(entry_names, self.directory_path)
         )
         self.non_directory_validator.directory_entries_dictionary = {
             entry: False for entry in entries
@@ -186,7 +186,7 @@ class TestSubdirectoriesProvider(unittest.TestCase):
             validators=validators_for_provider
         )
 
-        self.entry_names_provider = FakeOsListdirStringEntryNamesProvider()
+        self.entry_names_provider = FakeOsListdirEntryNamesProvider()
 
         self.provider = SubdirectoriesProvider(
             directory_filter=directory_filter,
@@ -198,9 +198,9 @@ class TestSubdirectoriesProvider(unittest.TestCase):
     def test_get(self):
         self.entry_names_provider.set_strategy(FakeGoodEntryNamesStrategy())
         directory_path = "path/to/subdirectories/"
-        string_entry_names = self.entry_names_provider.get(directory_path)
+        entry_names = self.entry_names_provider.get(directory_path)
         entries = self.converter.convert(
-            ListEntryArguments(string_entry_names, directory_path)
+            ListEntryArguments(entry_names, directory_path)
         )
         self.non_directory_validator.directory_entries_dictionary = {
             entry: "directory" in entry.name for entry in entries
@@ -232,9 +232,9 @@ class TestSubdirectoriesProvider(unittest.TestCase):
     def test_get_with_no_directories(self):
         self.entry_names_provider.set_strategy(FakeNoDirectoriesStrategy())
         directory_path = "path/to/subdirectories/"
-        string_entry_names = self.entry_names_provider.get(directory_path)
+        entry_names = self.entry_names_provider.get(directory_path)
         entries = self.converter.convert(
-            ListEntryArguments(string_entry_names, directory_path)
+            ListEntryArguments(entry_names, directory_path)
         )
         self.non_directory_validator.directory_entries_dictionary = {
             entry: False for entry in entries
@@ -274,9 +274,9 @@ class TestSubdirectoriesProvider(unittest.TestCase):
     def test_get_with_not_existing_entry(self):
         self.entry_names_provider.set_strategy(FakeNotExistingEntryStrategy())
         directory_path = "path/to/subdirectories/"
-        string_entry_names = self.entry_names_provider.get(directory_path)
+        entry_names = self.entry_names_provider.get(directory_path)
         entries = self.converter.convert(
-            ListEntryArguments(string_entry_names, directory_path)
+            ListEntryArguments(entry_names, directory_path)
         )
         self.not_existing_path_validator.existing_entries_dictionary = {
             entry: False for entry in entries
@@ -320,32 +320,32 @@ class TestSubdirectoriesProvider(unittest.TestCase):
         self.fail()
 
 
-class FakeOsListdirStringEntryNamesStrategy(OsListdirStringEntryNamesProvider, ABC):
+class FakeOsListdirEntryNamesStrategy(OsListdirEntryNamesProvider, ABC):
     def get(self, directory_path):
         pass
 
 
-class FakeGoodEntryNamesStrategy(FakeOsListdirStringEntryNamesStrategy):
+class FakeGoodEntryNamesStrategy(FakeOsListdirEntryNamesStrategy):
     def get(self, directory_path):
         return ["file1", "directory1", "all_good.txt"]
 
 
-class FakeNoEntryNamesStrategy(FakeOsListdirStringEntryNamesStrategy):
+class FakeNoEntryNamesStrategy(FakeOsListdirEntryNamesStrategy):
     def get(self, directory_path):
         return []
 
 
-class FakeNoDirectoriesStrategy(FakeOsListdirStringEntryNamesStrategy):
+class FakeNoDirectoriesStrategy(FakeOsListdirEntryNamesStrategy):
     def get(self, directory_path):
         return ["file1", "file2"]
 
 
-class FakeDuplicatedEntryNamesStrategy(FakeOsListdirStringEntryNamesStrategy):
+class FakeDuplicatedEntryNamesStrategy(FakeOsListdirEntryNamesStrategy):
     def get(self, directory_path):
         return ["duplicated_directory", "duplicated_directory"]
 
 
-class FakeInvalidCharactersInName(FakeOsListdirStringEntryNamesStrategy):
+class FakeInvalidCharactersInName(FakeOsListdirEntryNamesStrategy):
     def __init__(self, entry_with_invalid_characters_maker):
         self.entry_with_invalid_characters_maker = entry_with_invalid_characters_maker
 
@@ -355,7 +355,7 @@ class FakeInvalidCharactersInName(FakeOsListdirStringEntryNamesStrategy):
         return [entry.name for entry in invalid_entries]
 
 
-class FakeInvalidNamesStrategy(FakeOsListdirStringEntryNamesStrategy):
+class FakeInvalidNamesStrategy(FakeOsListdirEntryNamesStrategy):
     def __init__(self, invalid_names_provider: IInvalidEntryNamesProvider):
         self.invalid_names_provider = invalid_names_provider
 
@@ -363,18 +363,18 @@ class FakeInvalidNamesStrategy(FakeOsListdirStringEntryNamesStrategy):
         return self.invalid_names_provider.get()
 
 
-class FakeGoodDirectoryStrategy(FakeOsListdirStringEntryNamesStrategy):
+class FakeGoodDirectoryStrategy(FakeOsListdirEntryNamesStrategy):
     def get(self, directory_path):
         return ["directory1"]
 
 
-class FakeNotExistingEntryStrategy(FakeOsListdirStringEntryNamesStrategy):
+class FakeNotExistingEntryStrategy(FakeOsListdirEntryNamesStrategy):
     def get(self, directory_path):
         return ["not existing file"]
 
 
-class FakeOsListdirStringEntryNamesProvider(OsListdirStringEntryNamesProvider):
-    def __init__(self, strategy: FakeOsListdirStringEntryNamesStrategy = None):
+class FakeOsListdirEntryNamesProvider(OsListdirEntryNamesProvider):
+    def __init__(self, strategy: FakeOsListdirEntryNamesStrategy = None):
         self.strategy = strategy
 
     def set_strategy(self, strategy):
