@@ -15,5 +15,5 @@ class TestLinuxInvalidEntryNameCharactersProvider(unittest.TestCase):
         self.assertEqual(
             invalid_characters,
             expected_set,
-            "It returns not expected invalid names for the system file entry in Linux",
+            "It doesn't return expected invalid names for the system file entry in Linux",
         )
