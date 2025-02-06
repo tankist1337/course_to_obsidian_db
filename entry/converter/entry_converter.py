@@ -20,6 +20,7 @@ class SingleEntryConverter(IEntryConverter[FileSystemEntry]):
         self.separator_provider = separator_provider
 
     def convert(self, arguments: SingleEntryArguments) -> FileSystemEntry:
+        # todo: review it later
         is_path_not_closed_by_separator = not arguments.directory_path.endswith(
             self.separator_provider.get()
         )
@@ -41,6 +42,7 @@ class ListEntryConverter(IEntryConverter[list[FileSystemEntry]]):
         self.separator_provider = separator_provider
 
     def convert(self, arguments: ListEntryArguments) -> list[FileSystemEntry]:
+        # todo: review it later
         is_path_not_closed_by_separator = not arguments.directory_path.endswith(
             self.separator_provider.get()
         )
