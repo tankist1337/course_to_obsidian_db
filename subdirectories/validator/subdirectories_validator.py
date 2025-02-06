@@ -14,4 +14,4 @@ class ISubdirectoriesValidator(IValidator[list[FileSystemEntry]], ABC):
 class NoSubdirectoriesValidator(ISubdirectoriesValidator):
     def validate(self, item: list[FileSystemEntry]):
         if not item:
-            raise NoSubdirectoriesException("Directory hasn't any subdirectories")
+            raise NoSubdirectoriesException("There are no subdirectories")
