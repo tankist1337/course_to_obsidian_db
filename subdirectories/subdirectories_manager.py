@@ -7,6 +7,7 @@ from entry.entry import Directory
 from path.validator.path_validator import IPathValidator
 from subdirectories.directory_filter import IDirectoryFilter
 from subdirectories.provider.entry_names_provider import IEntryNamesProvider
+from subdirectories.unique_item_filter import IUniqueItemFilter
 from subdirectories.validator.subdirectories_validator import ISubdirectoriesValidator
 
 
@@ -33,11 +34,13 @@ class SubdirectoriesManager(ISubdirectoriesProvider):
 class SubdirectoriesProvider(ISubdirectoriesProvider):
     def __init__(
         self,
+        unique_item_filter: IUniqueItemFilter,
         directory_filter: IDirectoryFilter,
         converter: IEntryConverter,
         validator: IPathValidator,
         entry_names_provider: IEntryNamesProvider,
     ):
+        self.unique_item_filter = unique_item_filter
         self.directory_filter = directory_filter
         self.converter = converter
         self.validator = validator
@@ -45,9 +48,10 @@ class SubdirectoriesProvider(ISubdirectoriesProvider):
 
     def get(self, directory_path) -> list[Directory]:
         entry_names = self.entry_names_provider.get(directory_path)
+        unique_names = self.unique_item_filter.filter(entry_names)
 
         entries = self.converter.convert(
-            ListEntryArguments(entry_names, directory_path)
+            ListEntryArguments(unique_names, directory_path)
         )
 
         for entry in entries:

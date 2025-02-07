@@ -110,17 +110,16 @@ class TestListEntryConverter(unittest.TestCase):
         self.converter = ListEntryConverter(separator_provider)
 
     def __assert_result(self, names, directory_path, separator, entries):
-        expected_set = {
+        expected = [
             FileSystemEntry(
                 name=name,
                 directory_path=directory_path,
-                path=f"{directory_path}{separator}{name}",
+                path=directory_path + separator + name,
             )
             for name in names
-        }
-        actual_set = set(entries)
-        self.assertEqual(
-            expected_set, actual_set, "The entries do not match the expected ones"
+        ]
+        self.assertListEqual(
+            entries, expected, "The entries do not match the expected ones"
         )
 
     def test_convert_path_is_not_closed_by_separator(self):
@@ -184,6 +183,15 @@ class TestListEntryConverter(unittest.TestCase):
     def test_convert_with_invalid_path(self):
         names = ["//\\$@!^#&!$&,.*!^$~%()", "&*(n598327-)%(*=25#N-)"]
         directory_path = '\\&!#$%^,.@#&*%:?".'
+        arguments = ListEntryArguments(names, directory_path)
+
+        entries = self.converter.convert(arguments)
+
+        self.__assert_result(names, directory_path, self.separator, entries)
+
+    def test_convert_with_duplicates(self):
+        names = ["subdirectory", "subdirectory"]
+        directory_path = "directory/for/tests"
         arguments = ListEntryArguments(names, directory_path)
 
         entries = self.converter.convert(arguments)

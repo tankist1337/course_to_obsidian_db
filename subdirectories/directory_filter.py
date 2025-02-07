@@ -20,9 +20,7 @@ class DirectoryFilter(IDirectoryFilter):
     def filter(self, entries: list[FileSystemEntry]) -> list[Directory]:
         directories = []
 
-        for entry in set(
-            entries
-        ):  # remove set from there to save order and extract this logic to another class
+        for entry in entries:
             try:
                 self.validator_manager.validate(entry)
                 directories.append(self.directory_factory.from_entry(entry))

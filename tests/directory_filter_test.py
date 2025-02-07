@@ -178,10 +178,13 @@ class TestDirectoryFilter(unittest.TestCase):
                 path="directory/directory1",
             ),
         ]
+        self.non_directory_validator.directory_entries_dictionary = {
+            entry: "directory" in entry.name for entry in entries
+        }
 
         directories = self.directory_filter.filter(entries)
 
-        expected_list = [self.directory_factory.from_entry(entries[0])]
+        expected_list = [self.directory_factory.from_entry(entry) for entry in entries]
         self.assertEqual(
             directories,
             expected_list,

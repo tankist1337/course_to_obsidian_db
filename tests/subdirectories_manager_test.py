@@ -36,6 +36,7 @@ from subdirectories.subdirectories_manager import (
     SubdirectoriesProvider,
     SubdirectoriesManager,
 )
+from subdirectories.unique_item_filter import StringUniqueItemFilter
 from subdirectories.validator.subdirectories_validator import NoSubdirectoriesValidator
 from tests.entry_validator_test import (
     FakeEntryWithInvalidCharactersMaker,
@@ -88,7 +89,10 @@ class TestSubdirectoriesManager(unittest.TestCase):
 
         self.entry_names_provider = FakeOsListdirEntryNamesProvider()
 
+        unique_items_filter = StringUniqueItemFilter()
+
         self.provider = SubdirectoriesProvider(
+            unique_item_filter=unique_items_filter,
             directory_filter=directory_filter,
             converter=self.converter,
             validator=provider_validator_manager,
@@ -188,7 +192,10 @@ class TestSubdirectoriesProvider(unittest.TestCase):
 
         self.entry_names_provider = FakeOsListdirEntryNamesProvider()
 
+        unique_items_filter = StringUniqueItemFilter()
+
         self.provider = SubdirectoriesProvider(
+            unique_item_filter=unique_items_filter,
             directory_filter=directory_filter,
             converter=self.converter,
             validator=validator_manager_for_provider,
