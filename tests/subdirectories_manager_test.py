@@ -139,16 +139,17 @@ class TestSubdirectoriesManager(unittest.TestCase):
 
         directories = self.manager.get(self.directory_path)
 
-        expected_set = {
+        expected_directories = [
             Directory(
                 name="directory1",
                 directory_path="directory/for/tests/",
                 path="directory/for/tests/directory1",
             )
-        }
-        directory_set = set(directories)
+        ]
         self.assertEqual(
-            directory_set, expected_set, "The directories aren't the same as expected"
+            directories,
+            expected_directories,
+            "The directories aren't the same as expected",
         )
 
     def test_get_with_empty_directory(self):
@@ -165,18 +166,20 @@ class TestSubdirectoriesManager(unittest.TestCase):
             self.manager.get(self.directory_path)
 
     def test_get_with_not_existing_directory_path(self):
-        directory_path = "path/to/subdirectories"
-        self.not_existing_path_validator.update_existing_paths({directory_path: False})
+        self.not_existing_path_validator.update_existing_paths(
+            {self.directory_path: False}
+        )
 
         with self.assertRaises(NotExistingPathException):
-            self.provider.get(directory_path)
+            self.provider.get(self.directory_path)
 
     def test_get_with_non_directory_path(self):
-        directory_path = "path/to/subdirectories"
-        self.non_directory_path_validator.update_directories({directory_path: False})
+        self.non_directory_path_validator.update_directories(
+            {self.directory_path: False}
+        )
 
         with self.assertRaises(NonDirectoryPathException):
-            self.provider.get(directory_path)
+            self.provider.get(self.directory_path)
 
 
 class TestSubdirectoriesProvider(unittest.TestCase):
@@ -252,19 +255,18 @@ class TestSubdirectoriesProvider(unittest.TestCase):
 
     def test_get(self):
         self.entry_names_provider.set_strategy(FakeGoodEntryNamesStrategy())
-        directory_path = "path/to/subdirectories/"
         entry_names = self.entry_names_provider.get(self.directory_path)
         entries = self.converter.convert(
-            ListEntryArguments(entry_names, directory_path)
+            ListEntryArguments(entry_names, self.directory_path)
         )
         self.non_directory_path_validator.update_directories(
             {entry.path: "directory" in entry.name for entry in entries},
-            {directory_path: True},
+            {self.directory_path: True},
         )
 
-        directories = self.provider.get(directory_path)
+        directories = self.provider.get(self.directory_path)
 
-        expected_list = [
+        expected_directories = [
             Directory(
                 name="directory1",
                 directory_path="path/to/subdirectories",
@@ -272,7 +274,9 @@ class TestSubdirectoriesProvider(unittest.TestCase):
             )
         ]
         self.assertEqual(
-            directories, expected_list, "The subdirectories isn't the same as expected"
+            directories,
+            expected_directories,
+            "The subdirectories isn't the same as expected",
         )
 
     def test_get_with_no_entry_names(self):
@@ -341,7 +345,7 @@ class TestSubdirectoriesProvider(unittest.TestCase):
 
         directories = self.provider.get(self.directory_path)
 
-        expected_list = [
+        expected_directories = [
             Directory(
                 name="duplicated_directory",
                 directory_path="path/to/subdirectories",
@@ -349,7 +353,9 @@ class TestSubdirectoriesProvider(unittest.TestCase):
             )
         ]
         self.assertEqual(
-            directories, expected_list, "The subdirectories isn't the same as expected"
+            directories,
+            expected_directories,
+            "The subdirectories isn't the same as expected",
         )
 
     def test_get_with_directory_path_not_closed_by_separator(self):

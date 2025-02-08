@@ -84,12 +84,11 @@ class TestDirectoryFilter(unittest.TestCase):
 
         directories = self.directory_filter.filter(entries)
 
-        directory_set = set(directories)
-        expected_set = {self.directory_factory.from_entry(entries[2])}
+        expected_directories = [self.directory_factory.from_entry(entries[2])]
 
         self.assertEqual(
-            directory_set,
-            expected_set,
+            directories,
+            expected_directories,
             "Directories are not the same as the expected ones",
         )
 
