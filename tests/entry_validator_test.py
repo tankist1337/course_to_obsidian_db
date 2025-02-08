@@ -6,7 +6,7 @@ from entry.entry_exception import (
     InvalidEntryNameException,
 )
 from entry.entry_validator import (
-    IEntryValidator,
+    EntryAdapterForPathValidator,
     InvalidEntryNameCharactersValidator,
     InvalidEntryNameValidator,
 )
@@ -20,6 +20,10 @@ from entry.invalid_entry_names_provider import (
 from path.validator.path_exception import (
     NonDirectoryPathException,
     NotExistingPathException,
+)
+from tests.path_validator_test import (
+    FakeNonDirectoryPathValidator,
+    FakeNotExistingPathValidator,
 )
 
 
@@ -128,7 +132,8 @@ class FakeEntryWithInvalidCharactersMaker:
 
 class TestNotExistingEntryValidator(unittest.TestCase):
     def setUp(self):
-        self.validator = FakeNotExistingEntryValidator()
+        self.path_validator = FakeNotExistingPathValidator()
+        self.entry_validator = EntryAdapterForPathValidator(self.path_validator)
 
     def test_validate_existing_entry(self):
         entry = FileSystemEntry(
@@ -136,9 +141,9 @@ class TestNotExistingEntryValidator(unittest.TestCase):
             directory_path="directory/for/tests/",
             path="directory/for/tests/subdirectory2",
         )
-        self.validator.existing_entries_dictionary = {entry: True}
+        self.path_validator.update_existing_paths({entry.path: True})
 
-        self.validator.validate(entry)
+        self.entry_validator.validate(entry)
 
     def test_validate_not_existing_entry(self):
         entry = FileSystemEntry(
@@ -146,28 +151,16 @@ class TestNotExistingEntryValidator(unittest.TestCase):
             directory_path="path/to/directory/",
             path="path/to/directory/not_existing_entry",
         )
-        self.validator.existing_entries_dictionary = {entry: False}
+        self.path_validator.update_existing_paths({entry.path: False})
 
         with self.assertRaises(NotExistingPathException):
-            self.validator.validate(entry)
-
-
-class FakeNotExistingEntryValidator(IEntryValidator):
-    def __init__(self, existing_entries_dictionary: dict[FileSystemEntry, bool] = None):
-        self.existing_entries_dictionary = existing_entries_dictionary
-
-    def validate(self, item: FileSystemEntry):
-        if self.existing_entries_dictionary is not None:
-            if self.existing_entries_dictionary.get(item) is False:
-                raise NotExistingPathException(f"The entry {item.path} isn't existing")
-        else:
-            # All files system entries are directories
-            pass
+            self.entry_validator.validate(entry)
 
 
 class TestNonDirectoryEntryValidator(unittest.TestCase):
     def setUp(self):
-        self.validator = FakeNonDirectoryEntryValidator()
+        self.path_validator = FakeNonDirectoryPathValidator()
+        self.entry_validator = EntryAdapterForPathValidator(self.path_validator)
 
     def test_validate_directory(self):
         entry = FileSystemEntry(
@@ -175,9 +168,9 @@ class TestNonDirectoryEntryValidator(unittest.TestCase):
             directory_path="path/to/directory/",
             path="path/to/directory/directory1",
         )
-        self.validator.directory_entries_dictionary = {entry: True}
+        self.path_validator.directories_dictionary = {entry.path: True}
 
-        self.validator.validate(entry)
+        self.entry_validator.validate(entry)
 
     def test_validate_non_directory(self):
         entry = FileSystemEntry(
@@ -185,24 +178,7 @@ class TestNonDirectoryEntryValidator(unittest.TestCase):
             directory_path="path/to/directory/",
             path="path/to/directory/file1",
         )
-        self.validator.directory_entries_dictionary = {entry: False}
+        self.path_validator.directories_dictionary = {entry.path: False}
 
         with self.assertRaises(NonDirectoryPathException):
-            self.validator.validate(entry)
-
-
-class FakeNonDirectoryEntryValidator(IEntryValidator):
-    def __init__(
-        self, directory_entries_dictionary: dict[FileSystemEntry, bool] = None
-    ):
-        self.directory_entries_dictionary = directory_entries_dictionary
-
-    def validate(self, item: FileSystemEntry):
-        if self.directory_entries_dictionary is not None:
-            if self.directory_entries_dictionary.get(item) is False:
-                raise NonDirectoryPathException(
-                    f"The entry {item.path} isn't a directory"
-                )
-        else:
-            # All files system entries are directories
-            pass
+            self.entry_validator.validate(entry)

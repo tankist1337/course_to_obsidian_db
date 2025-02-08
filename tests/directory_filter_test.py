@@ -8,6 +8,7 @@ from entry.entry_exception import (
     InvalidEntryNameException,
 )
 from entry.entry_validator import (
+    EntryAdapterForPathValidator,
     InvalidEntryNameCharactersValidator,
     InvalidEntryNameValidator,
 )
@@ -22,8 +23,10 @@ from subdirectories.directory_filter import DirectoryFilter
 from subdirectories.entry_factory import DirectoryFactory
 from tests.entry_validator_test import (
     FakeEntryWithInvalidCharactersMaker,
-    FakeNonDirectoryEntryValidator,
-    FakeNotExistingEntryValidator,
+)
+from tests.path_validator_test import (
+    FakeNonDirectoryPathValidator,
+    FakeNotExistingPathValidator,
 )
 
 
@@ -35,13 +38,19 @@ class TestDirectoryFilter(unittest.TestCase):
         )
         self.invalid_names_provider = LinuxInvalidEntryNamesProvider()
         invalid_name_validator = InvalidEntryNameValidator(self.invalid_names_provider)
-        self.non_directory_validator = FakeNonDirectoryEntryValidator()
-        self.not_existing_path_validator = FakeNotExistingEntryValidator()
+        self.non_directory_path_validator = FakeNonDirectoryPathValidator()
+        non_directory_entry_validator = EntryAdapterForPathValidator(
+            self.non_directory_path_validator
+        )
+        self.not_existing_path_validator = FakeNotExistingPathValidator()
+        not_existing_entry_validator = EntryAdapterForPathValidator(
+            self.not_existing_path_validator
+        )
         validators = [
             invalid_name_validator,
             invalid_characters_validator,
-            self.not_existing_path_validator,
-            self.non_directory_validator,
+            not_existing_entry_validator,
+            non_directory_entry_validator,
         ]
         validator_manager = ValidatorManager[FileSystemEntry](validators=validators)
         self.directory_factory = DirectoryFactory()
@@ -69,9 +78,9 @@ class TestDirectoryFilter(unittest.TestCase):
                 path="directory1/directory1",
             ),
         ]
-        self.non_directory_validator.directory_entries_dictionary = {
-            entry: "directory" in entry.name for entry in entries
-        }
+        self.non_directory_path_validator.update_directories(
+            {entry.path: "directory" in entry.name for entry in entries}
+        )
 
         directories = self.directory_filter.filter(entries)
 
@@ -92,9 +101,11 @@ class TestDirectoryFilter(unittest.TestCase):
                 path="directory1/not_existing_directory1",
             ),
         ]
-        self.not_existing_path_validator.existing_entries_dictionary = {
-            entries[0]: False,
-        }
+        self.not_existing_path_validator.update_existing_paths(
+            {
+                entries[0].path: False,
+            }
+        )
 
         with self.assertRaises(NotExistingPathException):
             self.directory_filter.filter(entries)
@@ -150,9 +161,9 @@ class TestDirectoryFilter(unittest.TestCase):
                 path="directory1/file2",
             ),
         ]
-        self.non_directory_validator.directory_entries_dictionary = {
-            entry: "directory" in entry.name for entry in entries
-        }
+        self.non_directory_path_validator.update_directories(
+            {entry.path: "directory" in entry.name for entry in entries}
+        )
 
         filtered_entries = self.directory_filter.filter(entries)
 
@@ -178,9 +189,9 @@ class TestDirectoryFilter(unittest.TestCase):
                 path="directory/directory1",
             ),
         ]
-        self.non_directory_validator.directory_entries_dictionary = {
-            entry: "directory" in entry.name for entry in entries
-        }
+        self.non_directory_path_validator.update_directories(
+            {entry.path: "directory" in entry.name for entry in entries}
+        )
 
         directories = self.directory_filter.filter(entries)
 
