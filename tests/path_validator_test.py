@@ -63,6 +63,19 @@ class FakeNotExistingPathValidator(IPathValidator):
     def __init__(self, existing_path_dictionary: dict[str, bool] = None):
         self.existing_path_dictionary = existing_path_dictionary
 
+    def set_existing_paths(self, existing_path_dictionary: dict[str, bool]):
+        self.existing_path_dictionary = existing_path_dictionary
+
+    def update_existing_paths(self, *args: dict[str, bool]):
+        merged_dictionary = {}
+        for dictionary in args:
+            merged_dictionary.update(dictionary)
+
+        if self.existing_path_dictionary:
+            self.existing_path_dictionary.update(merged_dictionary)
+        else:
+            self.set_existing_paths(merged_dictionary)
+
     def validate(self, item):
         if self.existing_path_dictionary is not None:
             if self.existing_path_dictionary.get(item) is not True:
@@ -75,6 +88,19 @@ class FakeNotExistingPathValidator(IPathValidator):
 class FakeNonDirectoryPathValidator(IPathValidator):
     def __init__(self, directories_dictionary: dict[str, bool] = None):
         self.directories_dictionary = directories_dictionary
+
+    def set_directories(self, directories_dictionary: dict[str, bool]):
+        self.directories_dictionary = directories_dictionary
+
+    def update_directories(self, *args: dict[str, bool]):
+        merged_dictionary = {}
+        for dictionary in args:
+            merged_dictionary.update(dictionary)
+
+        if self.directories_dictionary:
+            self.directories_dictionary.update(merged_dictionary)
+        else:
+            self.set_directories(merged_dictionary)
 
     def validate(self, item):
         if self.directories_dictionary is not None:

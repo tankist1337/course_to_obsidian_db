@@ -81,9 +81,9 @@ class TestPathManager(unittest.TestCase):
             self.path_manager.get()
 
     def test_get_with_non_directory_path(self):
-        self.non_directory_path_validator.directories_dictionary = {
-            self.provider.get(): False
-        }
+        self.non_directory_path_validator.update_directories(
+            {self.provider.get(): False}
+        )
 
         with self.assertRaises(NonDirectoryPathException):
             self.path_manager.get()
