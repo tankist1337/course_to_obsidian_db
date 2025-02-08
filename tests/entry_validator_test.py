@@ -168,7 +168,7 @@ class TestNonDirectoryEntryValidator(unittest.TestCase):
             directory_path="path/to/directory/",
             path="path/to/directory/directory1",
         )
-        self.path_validator.directories_dictionary = {entry.path: True}
+        self.path_validator.directory_dictionary = {entry.path: True}
 
         self.entry_validator.validate(entry)
 
@@ -178,7 +178,7 @@ class TestNonDirectoryEntryValidator(unittest.TestCase):
             directory_path="path/to/directory/",
             path="path/to/directory/file1",
         )
-        self.path_validator.directories_dictionary = {entry.path: False}
+        self.path_validator.directory_dictionary = {entry.path: False}
 
         with self.assertRaises(NonDirectoryPathException):
             self.entry_validator.validate(entry)

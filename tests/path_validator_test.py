@@ -32,13 +32,13 @@ class TestNonePathValidator(unittest.TestCase):
 class TestNonDirectoryPathValidator(unittest.TestCase):
     def test_validate_is_directory(self):
         path = "directory/for/tests/"
-        validator = FakeNonDirectoryPathValidator(directories_dictionary={path: True})
+        validator = FakeNonDirectoryPathValidator(directory_dictionary={path: True})
 
         validator.validate(path)
 
     def test_validate_is_not_directory(self):
         path = "directory/for/tests/raise.txt"
-        validator = FakeNonDirectoryPathValidator(directories_dictionary={path: False})
+        validator = FakeNonDirectoryPathValidator(directory_dictionary={path: False})
 
         with self.assertRaises(NonDirectoryPathException):
             validator.validate(path)
@@ -86,25 +86,25 @@ class FakeNotExistingPathValidator(IPathValidator):
 
 
 class FakeNonDirectoryPathValidator(IPathValidator):
-    def __init__(self, directories_dictionary: dict[str, bool] = None):
-        self.directories_dictionary = directories_dictionary
+    def __init__(self, directory_dictionary: dict[str, bool] = None):
+        self.directory_dictionary = directory_dictionary
 
-    def set_directories(self, directories_dictionary: dict[str, bool]):
-        self.directories_dictionary = directories_dictionary
+    def set_directories(self, directory_dictionary: dict[str, bool]):
+        self.directory_dictionary = directory_dictionary
 
     def update_directories(self, *args: dict[str, bool]):
         merged_dictionary = {}
         for dictionary in args:
             merged_dictionary.update(dictionary)
 
-        if self.directories_dictionary:
-            self.directories_dictionary.update(merged_dictionary)
+        if self.directory_dictionary:
+            self.directory_dictionary.update(merged_dictionary)
         else:
             self.set_directories(merged_dictionary)
 
     def validate(self, item):
-        if self.directories_dictionary is not None:
-            if self.directories_dictionary.get(item) is not True:
+        if self.directory_dictionary is not None:
+            if self.directory_dictionary.get(item) is not True:
                 raise NonDirectoryPathException(f'The path "{item}" isn\'t a directory')
         else:
             # All paths are directories
