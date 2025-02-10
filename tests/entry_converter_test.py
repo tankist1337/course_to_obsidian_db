@@ -32,7 +32,7 @@ class TestSingleEntryConverter(unittest.TestCase):
             directory_path=directory_path,
             path=directory_path + self.separator + name,
         )
-        self.assertEqual(expected_entry, actual_entry)
+        self.assertEqual(expected_entry, actual_entry, "Entry isn't as expected")
 
     def test_convert_path_is_closed_by_separator(self):
         name = "subdirectory1"
@@ -46,7 +46,7 @@ class TestSingleEntryConverter(unittest.TestCase):
             directory_path=directory_path,
             path=directory_path + name,
         )
-        self.assertEqual(expected_entry, actual_entry)
+        self.assertEqual(expected_entry, actual_entry, "Entry isn't as expected")
 
     def test_convert_with_empty_name(self):
         name = ""
@@ -60,7 +60,7 @@ class TestSingleEntryConverter(unittest.TestCase):
             directory_path=directory_path,
             path=directory_path + self.separator + name,
         )
-        self.assertEqual(expected_entry, actual_entry)
+        self.assertEqual(expected_entry, actual_entry, "Entry isn't as expected")
 
     def test_convert_with_empty_directory_path(self):
         name = "subdirectory1"
@@ -74,7 +74,7 @@ class TestSingleEntryConverter(unittest.TestCase):
             directory_path=directory_path,
             path=directory_path + self.separator + name,
         )
-        self.assertEqual(expected_entry, actual_entry)
+        self.assertEqual(expected_entry, actual_entry, "Entry isn't as expected")
 
     def test_convert_with_empty_name_and_directory_path(self):
         name = ""
@@ -88,7 +88,7 @@ class TestSingleEntryConverter(unittest.TestCase):
             directory_path=directory_path,
             path=directory_path + self.separator + name,
         )
-        self.assertEqual(expected_entry, actual_entry)
+        self.assertEqual(expected_entry, actual_entry, "Entry isn't as expected")
 
     def test_convert_with_invalid_path(self):
         name = "//\\$@!^#&!$&,.*!^$~%()"
@@ -102,7 +102,7 @@ class TestSingleEntryConverter(unittest.TestCase):
             directory_path=directory_path,
             path=directory_path + self.separator + name,
         )
-        self.assertEqual(expected_entry, actual_entry)
+        self.assertEqual(expected_entry, actual_entry, "Entry isn't as expected")
 
 
 class TestListEntryConverter(unittest.TestCase):

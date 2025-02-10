@@ -133,10 +133,16 @@ class FakePathValidator(IPathValidator, unittest.TestCase):
     __called_times = 0
 
     def assert_called_times(self, expected: int):
-        self.assertEqual(self.__called_times, expected)
+        self.assertEqual(
+            self.__called_times, expected, "Validator isn't called as often as expected"
+        )
 
     def assert_called_with(self, expected: str):
-        self.assertIn(expected, self.__called_with)
+        self.assertIn(
+            expected,
+            self.__called_with,
+            "Validator isn't called with the expected path",
+        )
 
     def validate(self, item):
         self.__called_with.append(item)
