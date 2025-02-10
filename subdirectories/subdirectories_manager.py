@@ -37,8 +37,8 @@ class SubdirectoriesProvider(ISubdirectoriesProvider):
         directory_path_validator: IPathValidator,
         directory_filter: IDirectoryFilter,
         converter: IEntryConverter,
-        entry_validator: IEntryValidator,
         entry_names_provider: IEntryNamesProvider,
+        entry_validator: IEntryValidator | None = None,
     ):
         self.directory_path_validator = directory_path_validator
         self.directory_filter = directory_filter
@@ -53,8 +53,9 @@ class SubdirectoriesProvider(ISubdirectoriesProvider):
 
         entries = self.converter.convert(SetEntryArguments(entry_names, directory_path))
 
-        for entry in entries:
-            self.entry_validator.validate(entry)
+        if self.entry_validator:
+            for entry in entries:
+                self.entry_validator.validate(entry)
 
         directories = self.directory_filter.filter(entries)
 
