@@ -8,7 +8,7 @@ from subdirectories.entry_factory import IEntryFactory
 
 class IDirectoryFilter(ABC):
     @abstractmethod
-    def filter(self, entries: list[FileSystemEntry]) -> list[Directory]:
+    def filter(self, entries: set[FileSystemEntry]) -> set[Directory]:
         pass
 
 
@@ -17,13 +17,13 @@ class DirectoryFilter(IDirectoryFilter):
         self.validator_manager = validator_manager
         self.directory_factory = directory_factory
 
-    def filter(self, entries: list[FileSystemEntry]) -> list[Directory]:
-        directories = []
+    def filter(self, entries: set[FileSystemEntry]) -> set[Directory]:
+        directories = set()
 
         for entry in entries:
             try:
                 self.validator_manager.validate(entry)
-                directories.append(self.directory_factory.from_entry(entry))
+                directories.add(self.directory_factory.from_entry(entry))
             except NonDirectoryPathException:
                 continue
 

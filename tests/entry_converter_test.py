@@ -1,10 +1,12 @@
 import unittest
 
 from entry.converter.entry_arguments import (
+    SetEntryArguments,
     SingleEntryArguments,
     ListEntryArguments,
 )
 from entry.converter.entry_converter import (
+    SetEntryConverter,
     SingleEntryConverter,
     ListEntryConverter,
 )
@@ -197,3 +199,41 @@ class TestListEntryConverter(unittest.TestCase):
         entries = self.converter.convert(arguments)
 
         self.__assert_result(names, directory_path, self.separator, entries)
+
+
+class TestSetEntryConverter(unittest.TestCase):
+    def setUp(self):
+        separator_provider = LinuxSeparatorProvider()
+        self.separator = separator_provider.get()
+        self.converter = SetEntryConverter(separator_provider)
+
+    def __assert_result(self, names, directory_path, separator, entries):
+        expected = {
+            FileSystemEntry(
+                name=name,
+                directory_path=directory_path,
+                path=directory_path + separator + name,
+            )
+            for name in names
+        }
+        self.assertEqual(
+            entries, expected, "The entries do not match the expected ones"
+        )
+
+    def test_convert_path_is_not_closed_by_separator(self):
+        names = {"subdirectory1", "subdirectory2"}
+        directory_path = "directory/for/tests"
+        arguments = SetEntryArguments(names, directory_path)
+
+        entries = self.converter.convert(arguments)
+
+        self.__assert_result(names, directory_path, self.separator, entries)
+
+    def test_convert_path_is_closed_by_separator(self):
+        names = {"subdirectory1", "subdirectory2"}
+        directory_path = "directory/for/tests/"
+        arguments = SetEntryArguments(names, directory_path)
+
+        entries = self.converter.convert(arguments)
+
+        self.__assert_result(names, directory_path, "", entries)

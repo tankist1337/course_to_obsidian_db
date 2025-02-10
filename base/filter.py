@@ -1,6 +1,7 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
 
 class IFilter[T, Y](ABC):
-    def filter(self, items: list[T]) -> list[Y]:
+    @abstractmethod
+    def filter(self, items: T) -> Y:
         pass

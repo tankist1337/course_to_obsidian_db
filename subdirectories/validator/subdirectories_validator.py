@@ -5,13 +5,13 @@ from entry.entry import FileSystemEntry
 from subdirectories.subdirectories_exception import NoSubdirectoriesException
 
 
-class ISubdirectoriesValidator(IValidator[list[FileSystemEntry]], ABC):
+class ISubdirectoriesValidator(IValidator[set[FileSystemEntry]], ABC):
     @abstractmethod
-    def validate(self, item: list[FileSystemEntry]):
+    def validate(self, item: set[FileSystemEntry]):
         pass
 
 
 class NoSubdirectoriesValidator(ISubdirectoriesValidator):
-    def validate(self, item: list[FileSystemEntry]):
+    def validate(self, item: set[FileSystemEntry]):
         if not item:
             raise NoSubdirectoriesException("There are no subdirectories")

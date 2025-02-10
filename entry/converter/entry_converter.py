@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 from entry.converter.entry_arguments import (
     ArgumentsToConvertToEntry,
+    SetEntryArguments,
     SingleEntryArguments,
     ListEntryArguments,
 )
@@ -60,5 +61,32 @@ class ListEntryConverter(IEntryConverter[list[FileSystemEntry]]):
             )
 
             entries.append(entry)
+
+        return entries
+
+
+class SetEntryConverter(IEntryConverter[set[FileSystemEntry]]):
+    def __init__(self, separator_provider: ISeparatorProvider):
+        self.separator_provider = separator_provider
+
+    def convert(self, arguments: SetEntryArguments) -> set[FileSystemEntry]:
+        # todo: review it later
+        is_path_not_closed_by_separator = not arguments.directory_path.endswith(
+            self.separator_provider.get()
+        )
+
+        entries = set()
+
+        for name in arguments.names:
+            path = arguments.directory_path
+            if is_path_not_closed_by_separator:
+                path += self.separator_provider.get()
+            path += name
+
+            entry = FileSystemEntry(
+                name=name, directory_path=arguments.directory_path, path=path
+            )
+
+            entries.add(entry)
 
         return entries

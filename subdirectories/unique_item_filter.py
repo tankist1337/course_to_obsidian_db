@@ -1,14 +1,15 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
 from base.filter import IFilter
 
 
 class IUniqueItemFilter[T](IFilter[T, T], ABC):
-    def filter(self, items: list[T]) -> list[T]:
+    @abstractmethod
+    def filter(self, items: T) -> T:
         pass
 
 
-class StringUniqueItemFilter(IUniqueItemFilter[str]):
+class StringUniqueItemFilter(IUniqueItemFilter[list[str]]):
     def filter(self, items: list[str]) -> list[str]:
         seen = set()
         seen_add = seen.add

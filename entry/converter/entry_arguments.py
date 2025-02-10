@@ -20,3 +20,9 @@ class ListEntryArguments(ArgumentsToConvertToEntry):
 class PathEntryArguments(ArgumentsToConvertToEntry):
     def __init__(self, path: str):
         self.path = path
+
+
+class SetEntryArguments(ArgumentsToConvertToEntry):
+    def __init__(self, names: set[str], directory_path: str):
+        self.names = names
+        self.directory_path = directory_path
