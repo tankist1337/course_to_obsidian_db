@@ -254,7 +254,7 @@ class TestSubdirectoriesProvider(unittest.TestCase):
         self.assertEqual(
             directories,
             expected_directories,
-            "The subdirectories isn't the same as expected",
+            "The subdirectories aren't the same as expected",
         )
 
     def test_get_with_no_entry_names(self):
