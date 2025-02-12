@@ -1,61 +1,16 @@
 import unittest
 
+from entry.entry import FileSystemEntry
+from entry.entry_validator import EntryAdapterForPathValidator
 from path.validator.path_exception import (
-    InvalidCharactersPathException,
     NonePathException,
-    NotDirectoryException,
+    NonDirectoryPathException,
     NotExistingPathException,
 )
 from path.validator.path_validator import (
     IPathValidator,
-    LinuxInvalidCharactersPathValidator,
     NonePathValidator,
 )
-from path.validator.invalid_characters_for_path_provider import (
-    InvalidCharactersForPathProvider,
-    LinuxInvalidCharactersForPathProvider,
-)
-
-
-class FakeInvalidCharactersPathMaker:
-    def __init__(self, invalid_characters_provider: InvalidCharactersForPathProvider):
-        self.invalid_characters_provider = invalid_characters_provider
-
-    def get_invalid_paths(self, path="to/project"):
-        invalid_characters = self.invalid_characters_provider.get_characters()
-        invalid_paths = []
-
-        for character in invalid_characters:
-            invalid_path = self.__put_character_in_center(path, character)
-            invalid_paths.append(invalid_path)
-
-        return invalid_paths
-
-    def __put_character_in_center(self, path, character):
-        center_index = int(len(path) / 2)
-        return path[:center_index] + character + path[center_index:]
-
-
-class TestLinuxInvalidCharactersPathValidator(unittest.TestCase):
-    def setUp(self):
-        self.invalid_characters_provider = LinuxInvalidCharactersForPathProvider()
-        self.validator = LinuxInvalidCharactersPathValidator(
-            self.invalid_characters_provider
-        )
-
-    def test_validate_without_incorrect_characters(self):
-        path = "directory/for/tests/"
-
-        self.validator.validate(path)
-
-    def test_validate_with_incorrect_characters(self):
-        maker = FakeInvalidCharactersPathMaker(self.invalid_characters_provider)
-        path = "directory/for/tests/"
-        invalid_paths = maker.get_invalid_paths(path)
-
-        for invalid_path in invalid_paths:
-            with self.assertRaises(InvalidCharactersPathException):
-                self.validator.validate(invalid_path)
 
 
 class TestNonePathValidator(unittest.TestCase):
@@ -74,53 +29,121 @@ class TestNonePathValidator(unittest.TestCase):
             self.validator.validate(path)
 
 
-class TestNotDirectoryValidator(unittest.TestCase):
+class TestNonDirectoryPathValidator(unittest.TestCase):
     def test_validate_is_directory(self):
-        validator = FakeNotDirectoryValidator(is_dir=True)
-
         path = "directory/for/tests/"
+        validator = FakeNonDirectoryPathValidator(directory_dictionary={path: True})
 
         validator.validate(path)
 
     def test_validate_is_not_directory(self):
-        validator = FakeNotDirectoryValidator(is_dir=False)
-
         path = "directory/for/tests/raise.txt"
+        validator = FakeNonDirectoryPathValidator(directory_dictionary={path: False})
 
-        with self.assertRaises(NotDirectoryException):
+        with self.assertRaises(NonDirectoryPathException):
             validator.validate(path)
-
-
-class FakeNotDirectoryValidator(IPathValidator):
-    def __init__(self, is_dir=True):
-        self.is_dir = is_dir
-
-    def validate(self, path):
-        if not self.is_dir:
-            raise NotDirectoryException("The directory path is not a directory")
 
 
 class TestNotExistingPathValidator(unittest.TestCase):
     def test_validate_is_existing(self):
-        validator = FakeNotExistingPathValidator(is_existing=True)
-
         path = "directory/for/tests/raise.txt"
+        validator = FakeNotExistingPathValidator(existing_path_dictionary={path: True})
 
         validator.validate(path)
 
     def test_validate_is_not_existing(self):
-        validator = FakeNotExistingPathValidator(is_existing=False)
-
         path = "directory/for/tests/raise.png"
+        validator = FakeNotExistingPathValidator(existing_path_dictionary={path: False})
 
         with self.assertRaises(NotExistingPathException):
             validator.validate(path)
 
 
 class FakeNotExistingPathValidator(IPathValidator):
-    def __init__(self, is_existing=True):
-        self.is_existing = is_existing
+    def __init__(self, existing_path_dictionary: dict[str, bool] | None = None):
+        self.existing_path_dictionary = existing_path_dictionary
 
-    def validate(self, path):
-        if not self.is_existing:
-            raise NotExistingPathException("The directory path does not exist")
+    def set_existing_paths(self, existing_path_dictionary: dict[str, bool]):
+        self.existing_path_dictionary = existing_path_dictionary
+
+    def update_existing_paths(self, *args: dict[str, bool]):
+        merged_dictionary = {}
+        for dictionary in args:
+            merged_dictionary.update(dictionary)
+
+        if self.existing_path_dictionary:
+            self.existing_path_dictionary.update(merged_dictionary)
+        else:
+            self.set_existing_paths(merged_dictionary)
+
+    def validate(self, item):
+        if self.existing_path_dictionary is not None:
+            if not self.existing_path_dictionary.get(item):  # type: ignore
+                raise NotExistingPathException(f'The path "{item}" does not exist')
+        else:
+            # All paths are existing
+            pass
+
+
+class FakeNonDirectoryPathValidator(IPathValidator):
+    def __init__(self, directory_dictionary: dict[str, bool] | None = None):
+        self.directory_dictionary = directory_dictionary
+
+    def set_directories(self, directory_dictionary: dict[str, bool]):
+        self.directory_dictionary = directory_dictionary
+
+    def update_directories(self, *args: dict[str, bool]):
+        merged_dictionary = {}
+        for dictionary in args:
+            merged_dictionary.update(dictionary)
+
+        if self.directory_dictionary:
+            self.directory_dictionary.update(merged_dictionary)
+        else:
+            self.set_directories(merged_dictionary)
+
+    def validate(self, item):
+        if self.directory_dictionary is not None:
+            if not self.directory_dictionary.get(item):  # type: ignore
+                raise NonDirectoryPathException(f'The path "{item}" isn\'t a directory')
+        else:
+            # All paths are directories
+            pass
+
+
+class TestEntryAdapterForPathValidator(unittest.TestCase):
+    def setUp(self):
+        self.path_validator = FakePathValidator()
+        self.entry_validator = EntryAdapterForPathValidator(self.path_validator)
+
+    def test_validate(self):
+        name = "subdirectory1"
+        directory_path = "directory/for/tests/"
+        path = directory_path + name
+        entry = FileSystemEntry(name, directory_path, path)
+
+        self.entry_validator.validate(entry)
+
+        self.path_validator.assert_called_times(1)
+        self.path_validator.assert_called_with(entry.path)
+
+
+class FakePathValidator(IPathValidator, unittest.TestCase):
+    __called_with = list[str]()
+    __called_times = 0
+
+    def assert_called_times(self, expected: int):
+        self.assertEqual(
+            self.__called_times, expected, "Validator isn't called as often as expected"
+        )
+
+    def assert_called_with(self, expected: str):
+        self.assertIn(
+            expected,
+            self.__called_with,
+            "Validator isn't called with the expected path",
+        )
+
+    def validate(self, item):
+        self.__called_with.append(item)  # type: ignore
+        self.__called_times += 1

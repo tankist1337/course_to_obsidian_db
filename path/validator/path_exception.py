@@ -1,4 +1,4 @@
-class NotDirectoryException(Exception):
+class NonDirectoryPathException(Exception):
     pass
 
 
@@ -7,8 +7,4 @@ class NotExistingPathException(Exception):
 
 
 class NonePathException(Exception):
-    pass
-
-
-class InvalidCharactersPathException(Exception):
     pass
