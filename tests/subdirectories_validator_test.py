@@ -7,19 +7,19 @@ from subdirectories.validator.subdirectories_validator import NoSubdirectoriesVa
 
 class TestNoSubdirectoriesValidator(unittest.TestCase):
     def test_validate_with_subdirectories(self):
-        subdirectories = [
+        subdirectories = {
             Directory(
                 name="subdirectory1",
                 directory_path="directory/for/tests",
                 path="directory/for/tests/subdirectory1",
             )
-        ]
+        }
         validator = NoSubdirectoriesValidator()
 
         validator.validate(subdirectories)
 
     def test_validate_with_no_subdirectories(self):
-        subdirectories = []
+        subdirectories = set[Directory]()
         validator = NoSubdirectoriesValidator()
 
         with self.assertRaises(NoSubdirectoriesException):

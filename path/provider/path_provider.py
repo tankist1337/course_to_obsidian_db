@@ -1,9 +1,15 @@
 from abc import ABC, abstractmethod
 import argparse
-from path.validator.path_validator import IPathValidator
+from base.validator import IValidator
 
 
 class IPathProvider(ABC):
+    @abstractmethod
+    def get(self) -> str | None:
+        pass
+
+
+class IPathManager(ABC):
     @abstractmethod
     def get(self) -> str:
         pass
@@ -24,17 +30,17 @@ class CliPathProvider(IPathProvider):
         return path
 
 
-class PathManager(IPathProvider):
+class PathManager(IPathManager):
     def __init__(
         self,
         provider: IPathProvider,
-        validator_manager: IPathValidator,
+        validator: IValidator,
     ):
         self.provider = provider
-        self.validator_manager = validator_manager
+        self.validator = validator
 
     def get(self) -> str:
         path = self.provider.get()
-        self.validator_manager.validate(path)
+        self.validator.validate(path)
 
-        return path
+        return path  # type: ignore

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Sequence
 
 
 class IValidator[T](ABC):
@@ -8,7 +9,7 @@ class IValidator[T](ABC):
 
 
 class ValidatorManager[T](IValidator[T], ABC):
-    def __init__(self, validators: list[IValidator]):
+    def __init__(self, validators: Sequence[IValidator]):
         self.validators = validators
 
     def validate(self, item: T):

@@ -9,9 +9,9 @@ from path.validator.path_exception import (
 )
 
 
-class IPathValidator(IValidator[str], ABC):
+class IPathValidator(IValidator[str | None], ABC):
     @abstractmethod
-    def validate(self, item: str):
+    def validate(self, item: str | None):
         pass
 
 
@@ -24,12 +24,12 @@ class NonePathValidator(IPathValidator):
 # todo: Review this class os.path.isdir
 class NonDirectoryPathValidator(IPathValidator):
     def validate(self, item):
-        if not os.path.isdir(item):
+        if not os.path.isdir(item):  # type: ignore
             raise NonDirectoryPathException(f"The path {item} is not a directory")
 
 
 # todo: Review this class os.path.exists
 class NotExistingPathValidator(IPathValidator):
     def validate(self, item):
-        if not os.path.exists(item):
+        if not os.path.exists(item):  # type: ignore
             raise NotExistingPathException(f"The path {item} doesn't exist")

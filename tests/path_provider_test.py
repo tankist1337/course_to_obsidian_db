@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 import argparse
 import unittest
 from unittest.mock import patch
@@ -73,16 +73,16 @@ class TestPathManager(unittest.TestCase):
             self.path_manager.get()
 
     def test_get_with_not_existing_path(self):
-        self.not_existing_path_validator.existing_path_dictionary = {
-            self.provider.get(): False
-        }
+        self.not_existing_path_validator.update_existing_paths(
+            {self.provider.get(): False}  # type: ignore
+        )
 
         with self.assertRaises(NotExistingPathException):
             self.path_manager.get()
 
     def test_get_with_non_directory_path(self):
         self.non_directory_path_validator.update_directories(
-            {self.provider.get(): False}
+            {self.provider.get(): False}  # type: ignore
         )
 
         with self.assertRaises(NonDirectoryPathException):
@@ -90,7 +90,8 @@ class TestPathManager(unittest.TestCase):
 
 
 class FakeCliPathStrategy(IPathProvider, ABC):
-    def get(self):
+    @abstractmethod
+    def get(self) -> str | None:
         pass
 
 
@@ -105,11 +106,11 @@ class FakeNoneStrategy(FakeCliPathStrategy):
 
 
 class FakeCliPathProvider(IPathProvider):
-    def __init__(self, strategy: FakeCliPathStrategy = None):
+    def __init__(self, strategy: FakeCliPathStrategy | None = None):
         self.strategy = strategy
 
     def set_strategy(self, strategy):
         self.strategy = strategy
 
     def get(self):
-        return self.strategy.get()
+        return self.strategy.get() if self.strategy else None

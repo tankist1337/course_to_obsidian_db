@@ -11,6 +11,6 @@ class IUniqueItemFilter[T](IFilter[T, T], ABC):
 
 class StringUniqueItemFilter(IUniqueItemFilter[list[str]]):
     def filter(self, items: list[str]) -> list[str]:
-        seen = set()
+        seen = set[str]()
         seen_add = seen.add
         return [item for item in items if not (item in seen or seen_add(item))]

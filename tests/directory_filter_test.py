@@ -173,28 +173,8 @@ class TestDirectoryFilter(unittest.TestCase):
         self.assertEqual(len(filtered_entries), 0, "There shouldn't be any directories")
 
     def test_filter_with_no_entries(self):
-        entries_paths = {}
+        entries_paths = set()
 
         directories = self.directory_filter.filter(entries_paths)
 
         self.assertEqual(len(directories), 0, "There shouldn't be any entries")
-
-    def test_filter_with_duplicated_directories(self):
-        entry = FileSystemEntry(
-            name="directory1",
-            directory_path="directory/",
-            path="directory/directory1",
-        )
-        entries = {entry, entry}
-        self.non_directory_path_validator.update_directories(
-            {entry.path: "directory" in entry.name for entry in entries}
-        )
-
-        directories = self.directory_filter.filter(entries)
-
-        expected = {self.directory_factory.from_entry(entry)}
-        self.assertEqual(
-            directories,
-            expected,
-            "Directories are not the same as the expected ones",
-        )

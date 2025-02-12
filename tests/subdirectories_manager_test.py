@@ -1,13 +1,9 @@
-from abc import ABC
 import unittest
+from abc import ABC, abstractmethod
 
 from base.validator import ValidatorManager
-from entry.converter.entry_arguments import (
-    SetEntryArguments,
-)
-from entry.converter.entry_converter import (
-    SetEntryConverter,
-)
+from entry.converter.entry_arguments import SetEntryArguments
+from entry.converter.entry_converter import SetEntryConverter
 from entry.entry import Directory, FileSystemEntry
 from entry.entry_exception import (
     InvalidEntryNameCharactersException,
@@ -32,18 +28,15 @@ from path.validator.path_exception import (
 )
 from subdirectories.directory_filter import DirectoryFilter
 from subdirectories.entry_factory import DirectoryFactory
-from subdirectories.provider.entry_names_provider import (
-    OsListdirEntryNamesProvider,
-)
+from subdirectories.provider.entry_names_provider import OsListdirEntryNamesProvider
 from subdirectories.subdirectories_exception import NoSubdirectoriesException
 from subdirectories.subdirectories_manager import (
-    SubdirectoriesProvider,
     SubdirectoriesManager,
+    SubdirectoriesProvider,
+    SubdirectoriesProviderArguments,
 )
 from subdirectories.validator.subdirectories_validator import NoSubdirectoriesValidator
-from tests.entry_validator_test import (
-    FakeEntryWithInvalidCharactersMaker,
-)
+from tests.entry_validator_test import FakeEntryWithInvalidCharactersMaker
 from tests.path_validator_test import (
     FakeNonDirectoryPathValidator,
     FakeNotExistingPathValidator,
@@ -94,6 +87,7 @@ class TestSubdirectoriesManager(unittest.TestCase):
         self.entry_validator = None
 
         self.entry_names_provider = FakeOsListdirEntryNamesProvider()
+        self.entry_names_provider.set_strategy(FakeNeutralStrategy())
 
         directory_path_validators = [
             self.non_directory_path_validator,
@@ -104,11 +98,13 @@ class TestSubdirectoriesManager(unittest.TestCase):
         )
 
         self.provider = SubdirectoriesProvider(
-            directory_path_validator=directory_path_validator_manager,
-            directory_filter=directory_filter,
-            converter=self.converter,
-            entry_validator=self.entry_validator,
-            entry_names_provider=self.entry_names_provider,
+            SubdirectoriesProviderArguments(
+                directory_path_validator=directory_path_validator_manager,
+                directory_filter=directory_filter,
+                converter=self.converter,
+                entry_validator=self.entry_validator,
+                entry_names_provider=self.entry_names_provider,
+            )
         )
 
         provider_manager_validator = NoSubdirectoriesValidator()
@@ -117,7 +113,6 @@ class TestSubdirectoriesManager(unittest.TestCase):
         self.directory_path = "directory/for/tests/"
 
     def test_get(self):
-        self.entry_names_provider.set_strategy(FakeGoodEntryNamesStrategy())
         entry_names = self.entry_names_provider.get(self.directory_path)
         entries = self.converter.convert(
             SetEntryArguments(entry_names, self.directory_path)
@@ -216,6 +211,7 @@ class TestSubdirectoriesProvider(unittest.TestCase):
         self.entry_validator = None
 
         self.entry_names_provider = FakeOsListdirEntryNamesProvider()
+        self.entry_names_provider.set_strategy(FakeNeutralStrategy())
 
         directory_path_validators = [
             self.non_directory_path_validator,
@@ -226,16 +222,17 @@ class TestSubdirectoriesProvider(unittest.TestCase):
         )
 
         self.provider = SubdirectoriesProvider(
-            directory_path_validator=directory_path_validator_manager,
-            directory_filter=directory_filter,
-            converter=self.converter,
-            entry_validator=self.entry_validator,
-            entry_names_provider=self.entry_names_provider,
+            SubdirectoriesProviderArguments(
+                directory_path_validator=directory_path_validator_manager,
+                directory_filter=directory_filter,
+                converter=self.converter,
+                entry_validator=self.entry_validator,
+                entry_names_provider=self.entry_names_provider,
+            )
         )
         self.directory_path = "path/to/subdirectories/"
 
     def test_get(self):
-        self.entry_names_provider.set_strategy(FakeGoodEntryNamesStrategy())
         entry_names = self.entry_names_provider.get(self.directory_path)
         entries = self.converter.convert(
             SetEntryArguments(entry_names, self.directory_path)
@@ -266,7 +263,9 @@ class TestSubdirectoriesProvider(unittest.TestCase):
         directories = self.provider.get(self.directory_path)
 
         self.assertEqual(
-            len(directories), 0, f'The directory "{self.directory_path}" must be empty'
+            len(directories),
+            0,
+            f'The directory "{self.directory_path}" must be empty',
         )
 
     def test_get_with_no_directories(self):
@@ -309,7 +308,7 @@ class TestSubdirectoriesProvider(unittest.TestCase):
         self.test_get_with_reserved_entry_name()
 
     def test_get_with_not_existing_entry(self):
-        self.entry_names_provider.set_strategy(FakeNotExistingEntryStrategy())
+        self.entry_names_provider.set_strategy(FakeNeutralStrategy())
         entry_names = self.entry_names_provider.get(self.directory_path)
         entries = self.converter.convert(
             SetEntryArguments(entry_names, self.directory_path)
@@ -320,24 +319,6 @@ class TestSubdirectoriesProvider(unittest.TestCase):
 
         with self.assertRaises(NotExistingPathException):
             self.provider.get(self.directory_path)
-
-    def test_get_with_duplicated_entry_names(self):
-        self.entry_names_provider.set_strategy(FakeDuplicatedEntryNamesStrategy())
-
-        directories = self.provider.get(self.directory_path)
-
-        expected_directories = {
-            Directory(
-                name="duplicated_directory",
-                directory_path="path/to/subdirectories/",
-                path="path/to/subdirectories/duplicated_directory",
-            )
-        }
-        self.assertEqual(
-            directories,
-            expected_directories,
-            "The subdirectories isn't the same as expected",
-        )
 
     def test_get_with_directory_path_not_closed_by_separator(self):
         self.entry_names_provider.set_strategy(FakeGoodDirectoryStrategy())
@@ -373,28 +354,24 @@ class TestSubdirectoriesProvider(unittest.TestCase):
 
 
 class FakeOsListdirEntryNamesStrategy(OsListdirEntryNamesProvider, ABC):
-    def get(self, directory_path):
+    @abstractmethod
+    def get(self, directory_path) -> set[str]:
         pass
 
 
-class FakeGoodEntryNamesStrategy(FakeOsListdirEntryNamesStrategy):
-    def get(self, directory_path):
+class FakeNeutralStrategy(FakeOsListdirEntryNamesStrategy):
+    def get(self, directory_path) -> set[str]:
         return {"file1", "directory1", "all_good.txt"}
 
 
 class FakeNoEntryNamesStrategy(FakeOsListdirEntryNamesStrategy):
-    def get(self, directory_path):
-        return {}
+    def get(self, directory_path) -> set[str]:
+        return set()
 
 
 class FakeNoDirectoriesStrategy(FakeOsListdirEntryNamesStrategy):
-    def get(self, directory_path):
+    def get(self, directory_path) -> set[str]:
         return {"file1", "file2"}
-
-
-class FakeDuplicatedEntryNamesStrategy(FakeOsListdirEntryNamesStrategy):
-    def get(self, directory_path):
-        return {"duplicated_directory", "duplicated_directory"}
 
 
 class FakeInvalidCharactersInName(FakeOsListdirEntryNamesStrategy):
@@ -420,17 +397,14 @@ class FakeGoodDirectoryStrategy(FakeOsListdirEntryNamesStrategy):
         return {"directory1"}
 
 
-class FakeNotExistingEntryStrategy(FakeOsListdirEntryNamesStrategy):
-    def get(self, directory_path):
-        return {"not existing file"}
-
-
 class FakeOsListdirEntryNamesProvider(OsListdirEntryNamesProvider):
-    def __init__(self, strategy: FakeOsListdirEntryNamesStrategy = None):
+    def __init__(self, strategy: FakeOsListdirEntryNamesStrategy | None = None):
         self.strategy = strategy
 
     def set_strategy(self, strategy):
         self.strategy = strategy
 
-    def get(self, directory_path):
-        return self.strategy.get(directory_path)
+    def get(self, directory_path) -> set[str]:
+        if self.strategy:
+            return self.strategy.get(directory_path)
+        raise TypeError

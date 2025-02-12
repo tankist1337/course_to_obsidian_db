@@ -10,13 +10,13 @@ from entry.entry import FileSystemEntry
 from entry.separator_provider import ISeparatorProvider
 
 
-class IEntryConverter[T](ABC):
+class IEntryConverter[T: ArgumentsToConvertToEntry, Y](ABC):
     @abstractmethod
-    def convert(self, arguments: ArgumentsToConvertToEntry) -> T:
+    def convert(self, arguments: T) -> Y:
         pass
 
 
-class SingleEntryConverter(IEntryConverter[FileSystemEntry]):
+class SingleEntryConverter(IEntryConverter[SingleEntryArguments, FileSystemEntry]):
     def __init__(self, separator_provider: ISeparatorProvider):
         self.separator_provider = separator_provider
 
@@ -38,7 +38,7 @@ class SingleEntryConverter(IEntryConverter[FileSystemEntry]):
         )
 
 
-class ListEntryConverter(IEntryConverter[list[FileSystemEntry]]):
+class ListEntryConverter(IEntryConverter[ListEntryArguments, list[FileSystemEntry]]):
     def __init__(self, separator_provider: ISeparatorProvider):
         self.separator_provider = separator_provider
 
@@ -65,7 +65,7 @@ class ListEntryConverter(IEntryConverter[list[FileSystemEntry]]):
         return entries
 
 
-class SetEntryConverter(IEntryConverter[set[FileSystemEntry]]):
+class SetEntryConverter(IEntryConverter[SetEntryArguments, set[FileSystemEntry]]):
     def __init__(self, separator_provider: ISeparatorProvider):
         self.separator_provider = separator_provider
 

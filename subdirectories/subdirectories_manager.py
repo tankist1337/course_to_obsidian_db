@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from base.validator import IValidator
 from entry.converter.entry_arguments import (
     SetEntryArguments,
 )
 from entry.converter.entry_converter import IEntryConverter
 from entry.entry import Directory
 from entry.entry_validator import IEntryValidator
-from path.validator.path_validator import IPathValidator
 from subdirectories.directory_filter import IDirectoryFilter
 from subdirectories.provider.entry_names_provider import IEntryNamesProvider
 from subdirectories.validator.subdirectories_validator import ISubdirectoriesValidator
@@ -31,32 +32,35 @@ class SubdirectoriesManager(ISubdirectoriesProvider):
         return directories
 
 
+@dataclass
+class SubdirectoriesProviderArguments:
+    directory_path_validator: IValidator
+    directory_filter: IDirectoryFilter
+    converter: IEntryConverter
+    entry_names_provider: IEntryNamesProvider
+    entry_validator: IEntryValidator | None = None
+
+
 class SubdirectoriesProvider(ISubdirectoriesProvider):
     def __init__(
         self,
-        directory_path_validator: IPathValidator,
-        directory_filter: IDirectoryFilter,
-        converter: IEntryConverter,
-        entry_names_provider: IEntryNamesProvider,
-        entry_validator: IEntryValidator | None = None,
+        arguments: SubdirectoriesProviderArguments,
     ):
-        self.directory_path_validator = directory_path_validator
-        self.directory_filter = directory_filter
-        self.converter = converter
-        self.entry_validator = entry_validator
-        self.entry_names_provider = entry_names_provider
+        self.arguments = arguments
 
     def get(self, directory_path) -> set[Directory]:
-        self.directory_path_validator.validate(directory_path)
+        self.arguments.directory_path_validator.validate(directory_path)
 
-        entry_names = self.entry_names_provider.get(directory_path)
+        entry_names = self.arguments.entry_names_provider.get(directory_path)
 
-        entries = self.converter.convert(SetEntryArguments(entry_names, directory_path))
+        entries = self.arguments.converter.convert(
+            SetEntryArguments(entry_names, directory_path)
+        )
 
-        if self.entry_validator:
+        if self.arguments.entry_validator:
             for entry in entries:
-                self.entry_validator.validate(entry)
+                self.arguments.entry_validator.validate(entry)
 
-        directories = self.directory_filter.filter(entries)
+        directories = self.arguments.directory_filter.filter(entries)
 
         return directories
