@@ -20,11 +20,9 @@ from path.validator.path_validator import NonePathValidator
 from subdirectories.directory_filter import DirectoryFilter
 from subdirectories.entry_factory import DirectoryFactory
 from subdirectories.subdirectories_manager import (
-    SubdirectoriesManager,
     SubdirectoriesProvider,
     SubdirectoriesProviderArguments,
 )
-from subdirectories.validator.subdirectories_validator import NoSubdirectoriesValidator
 from tests.path_provider_test import FakeCliPathProvider, FakeGoodPathStrategy
 from tests.path_validator_test import (
     FakeNonDirectoryPathValidator,
@@ -32,7 +30,7 @@ from tests.path_validator_test import (
 )
 from tests.subdirectories_manager_test import (
     FakeNeutralStrategy,
-    FakeNoDirectoriesStrategy,
+    FakeNoEntryNamesStrategy,
     FakeOsListdirEntryNamesProvider,
 )
 

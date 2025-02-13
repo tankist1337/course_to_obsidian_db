@@ -29,142 +29,15 @@ from path.validator.path_exception import (
 from subdirectories.directory_filter import DirectoryFilter
 from subdirectories.entry_factory import DirectoryFactory
 from subdirectories.provider.entry_names_provider import OsListdirEntryNamesProvider
-from subdirectories.subdirectories_exception import NoSubdirectoriesException
 from subdirectories.subdirectories_manager import (
-    SubdirectoriesManager,
     SubdirectoriesProvider,
     SubdirectoriesProviderArguments,
 )
-from subdirectories.validator.subdirectories_validator import NoSubdirectoriesValidator
 from tests.entry_validator_test import FakeEntryWithInvalidCharactersMaker
 from tests.path_validator_test import (
     FakeNonDirectoryPathValidator,
     FakeNotExistingPathValidator,
 )
-
-
-class TestSubdirectoriesManager(unittest.TestCase):
-    def setUp(self):
-        separator_provider = LinuxSeparatorProvider()
-        self.converter = SetEntryConverter(separator_provider)
-
-        invalid_characters_provider = LinuxInvalidEntryNameCharactersProvider()
-        invalid_characters_validator = InvalidEntryNameCharactersValidator(
-            invalid_characters_provider
-        )
-
-        invalid_names_provider = LinuxInvalidEntryNamesProvider()
-        invalid_name_validator = InvalidEntryNameValidator(invalid_names_provider)
-
-        self.not_existing_path_validator = FakeNotExistingPathValidator()
-        not_existing_entry_validator = EntryAdapterForPathValidator(
-            self.not_existing_path_validator
-        )
-
-        self.non_directory_path_validator = FakeNonDirectoryPathValidator()
-        non_directory_entry_validator = EntryAdapterForPathValidator(
-            self.non_directory_path_validator
-        )
-
-        directory_factory = DirectoryFactory()
-
-        filter_validators = [
-            invalid_name_validator,
-            invalid_characters_validator,
-            not_existing_entry_validator,
-            non_directory_entry_validator,
-        ]
-        filter_validator_manager = ValidatorManager[FileSystemEntry](
-            validators=filter_validators
-        )
-
-        directory_filter = DirectoryFilter(
-            validator_manager=filter_validator_manager,
-            directory_factory=directory_factory,
-        )
-
-        # directory_filter validates everything that needs to be validated
-        self.entry_validator = None
-
-        self.entry_names_provider = FakeOsListdirEntryNamesProvider()
-        self.entry_names_provider.set_strategy(FakeNeutralStrategy())
-
-        directory_path_validators = [
-            self.non_directory_path_validator,
-            self.not_existing_path_validator,
-        ]
-        directory_path_validator_manager = ValidatorManager[str](
-            directory_path_validators
-        )
-
-        self.provider = SubdirectoriesProvider(
-            SubdirectoriesProviderArguments(
-                directory_path_validator=directory_path_validator_manager,
-                directory_filter=directory_filter,
-                converter=self.converter,
-                entry_validator=self.entry_validator,
-                entry_names_provider=self.entry_names_provider,
-            )
-        )
-
-        provider_manager_validator = NoSubdirectoriesValidator()
-
-        self.manager = SubdirectoriesManager(self.provider, provider_manager_validator)
-        self.directory_path = "directory/for/tests/"
-
-    def test_get(self):
-        entry_names = self.entry_names_provider.get(self.directory_path)
-        entries = self.converter.convert(
-            SetEntryArguments(entry_names, self.directory_path)
-        )
-        self.non_directory_path_validator.update_directories(
-            {entry.path: "directory" in entry.name for entry in entries},
-            {self.directory_path: True},
-        )
-
-        directories = self.manager.get(self.directory_path)
-
-        expected_directories = {
-            Directory(
-                name="directory1",
-                directory_path="directory/for/tests/",
-                path="directory/for/tests/directory1",
-            )
-        }
-        self.assertEqual(
-            directories,
-            expected_directories,
-            "The directories aren't the same as expected",
-        )
-
-    def test_get_with_empty_directory(self):
-        self.entry_names_provider.set_strategy(FakeNoDirectoriesStrategy())
-        entry_names = self.entry_names_provider.get(self.directory_path)
-        entries = self.converter.convert(
-            SetEntryArguments(entry_names, self.directory_path)
-        )
-        self.non_directory_path_validator.update_directories(
-            {entry.path: False for entry in entries}, {self.directory_path: True}
-        )
-
-        with self.assertRaises(NoSubdirectoriesException):
-            self.manager.get(self.directory_path)
-
-    def test_get_with_not_existing_directory_path(self):
-        self.not_existing_path_validator.update_existing_paths(
-            {self.directory_path: False}
-        )
-
-        with self.assertRaises(NotExistingPathException):
-            self.provider.get(self.directory_path)
-
-    def test_get_with_non_directory_path(self):
-        self.non_directory_path_validator.update_directories(
-            {self.directory_path: False}
-        )
-
-        with self.assertRaises(NonDirectoryPathException):
-            self.provider.get(self.directory_path)
 
 
 class TestSubdirectoriesProvider(unittest.TestCase):

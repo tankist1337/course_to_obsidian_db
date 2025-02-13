@@ -9,27 +9,12 @@ from entry.entry import Directory
 from entry.entry_validator import IEntryValidator
 from subdirectories.directory_filter import IDirectoryFilter
 from subdirectories.provider.entry_names_provider import IEntryNamesProvider
-from subdirectories.validator.subdirectories_validator import ISubdirectoriesValidator
 
 
 class ISubdirectoriesProvider(ABC):
     @abstractmethod
     def get(self, directory_path) -> set[Directory]:
         pass
-
-
-class SubdirectoriesManager(ISubdirectoriesProvider):
-    def __init__(
-        self, provider: ISubdirectoriesProvider, validator: ISubdirectoriesValidator
-    ):
-        self.provider = provider
-        self.validator = validator
-
-    def get(self, directory_path) -> set[Directory]:
-        directories = self.provider.get(directory_path)
-        self.validator.validate(directories)
-
-        return directories
 
 
 @dataclass

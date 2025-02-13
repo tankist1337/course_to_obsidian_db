@@ -1,2 +1,0 @@
-class NoSubdirectoriesException(Exception):
-    pass
