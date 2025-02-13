@@ -80,15 +80,12 @@ class TestSubdirectoriesProvider(unittest.TestCase):
             directory_factory=directory_factory,
         )
 
-        # directory_filter validates everything that needs to be validated
-        self.entry_validator = None
-
         self.entry_names_provider = FakeOsListdirEntryNamesProvider()
         self.entry_names_provider.set_strategy(FakeNeutralStrategy())
 
         directory_path_validators = [
-            self.non_directory_path_validator,
             self.not_existing_path_validator,
+            self.non_directory_path_validator,
         ]
         directory_path_validator_manager = ValidatorManager[str](
             directory_path_validators
@@ -99,7 +96,6 @@ class TestSubdirectoriesProvider(unittest.TestCase):
                 directory_path_validator=directory_path_validator_manager,
                 directory_filter=directory_filter,
                 converter=self.converter,
-                entry_validator=self.entry_validator,
                 entry_names_provider=self.entry_names_provider,
             )
         )
@@ -219,11 +215,6 @@ class TestSubdirectoriesProvider(unittest.TestCase):
 
         with self.assertRaises(NonDirectoryPathException):
             self.provider.get(self.directory_path)
-
-    def test_get_with_none_entry_validator(self):
-        self.entry_validator = None
-
-        self.test_get()
 
 
 class FakeOsListdirEntryNamesStrategy(OsListdirEntryNamesProvider, ABC):

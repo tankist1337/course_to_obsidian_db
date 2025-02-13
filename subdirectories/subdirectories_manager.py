@@ -19,10 +19,10 @@ class ISubdirectoriesProvider(ABC):
 
 @dataclass
 class SubdirectoriesProviderArguments:
-    directory_path_validator: IValidator
     directory_filter: IDirectoryFilter
     converter: IEntryConverter
     entry_names_provider: IEntryNamesProvider
+    directory_path_validator: IValidator | None = None
     entry_validator: IEntryValidator | None = None
 
 
@@ -34,7 +34,8 @@ class SubdirectoriesProvider(ISubdirectoriesProvider):
         self.arguments = arguments
 
     def get(self, directory_path) -> set[Directory]:
-        self.arguments.directory_path_validator.validate(directory_path)
+        if self.arguments.directory_path_validator:
+            self.arguments.directory_path_validator.validate(directory_path)
 
         entry_names = self.arguments.entry_names_provider.get(directory_path)
 
