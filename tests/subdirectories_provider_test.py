@@ -29,7 +29,7 @@ from path.validator.path_exception import (
 from subdirectories.directory_filter import DirectoryFilter
 from subdirectories.entry_factory import DirectoryFactory
 from subdirectories.provider.entry_names_provider import OsListdirEntryNamesProvider
-from subdirectories.subdirectories_manager import (
+from subdirectories.subdirectories_provider import (
     SubdirectoriesProvider,
     SubdirectoriesProviderArguments,
 )
