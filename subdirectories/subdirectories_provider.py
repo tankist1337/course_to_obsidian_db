@@ -9,7 +9,6 @@ from entry.entry import Directory
 from entry.entry_validator import IEntryValidator
 from subdirectories.directory_filter import IDirectoryFilter
 from subdirectories.provider.entry_names_provider import IEntryNamesProvider
-from subdirectories.validator.subdirectories_validator import ISubdirectoriesValidator
 
 
 class ISubdirectoriesProvider(ABC):
@@ -18,26 +17,12 @@ class ISubdirectoriesProvider(ABC):
         pass
 
 
-class SubdirectoriesManager(ISubdirectoriesProvider):
-    def __init__(
-        self, provider: ISubdirectoriesProvider, validator: ISubdirectoriesValidator
-    ):
-        self.provider = provider
-        self.validator = validator
-
-    def get(self, directory_path) -> set[Directory]:
-        directories = self.provider.get(directory_path)
-        self.validator.validate(directories)
-
-        return directories
-
-
 @dataclass
 class SubdirectoriesProviderArguments:
-    directory_path_validator: IValidator
     directory_filter: IDirectoryFilter
     converter: IEntryConverter
     entry_names_provider: IEntryNamesProvider
+    directory_path_validator: IValidator | None = None
     entry_validator: IEntryValidator | None = None
 
 
@@ -49,7 +34,8 @@ class SubdirectoriesProvider(ISubdirectoriesProvider):
         self.arguments = arguments
 
     def get(self, directory_path) -> set[Directory]:
-        self.arguments.directory_path_validator.validate(directory_path)
+        if self.arguments.directory_path_validator:
+            self.arguments.directory_path_validator.validate(directory_path)
 
         entry_names = self.arguments.entry_names_provider.get(directory_path)
 
