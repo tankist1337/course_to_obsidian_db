@@ -9,6 +9,7 @@ from entry.entry_exception import (
     InvalidEntryNameCharactersException,
     InvalidEntryNameException,
 )
+from entry.entry_provider import EntryProvider
 from entry.entry_validator import (
     EntryAdapterForPathValidator,
     InvalidEntryNameCharactersValidator,
@@ -127,6 +128,7 @@ class TestEntryProvider(unittest.TestCase):
 
     def test_get_with_directory_path_not_closed_by_separator(self):
         self.directory_path = "directory/for/tests"
+        self.non_directory_path_validator.set_directories({self.directory_path: True})
 
         entries = self.entry_provider.get(self.directory_path)
 
