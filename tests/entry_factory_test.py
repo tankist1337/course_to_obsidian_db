@@ -1,7 +1,7 @@
 import unittest
 
 from entry.entry import Directory, FileSystemEntry
-from subdirectories.entry_factory import DirectoryFactory
+from entry.entry_factory import DirectoryFactory
 
 
 class TestDirectoryFactory(unittest.TestCase):

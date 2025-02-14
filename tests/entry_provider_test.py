@@ -6,7 +6,7 @@ from entry.converter.entry_arguments import SetEntryArguments
 from entry.converter.entry_converter import SetEntryConverter
 from entry.entry import FileSystemEntry
 from entry.entry_exception import (
-    InvalidEntryNameCharactersException,
+    InvalidEntryNameCharacterException,
     InvalidEntryNameException,
 )
 from entry.entry_provider import EntryProvider
@@ -15,10 +15,10 @@ from entry.entry_validator import (
     InvalidEntryNameCharactersValidator,
     InvalidEntryNameValidator,
 )
-from entry.invalid_entry_name_characters_provider import (
-    LinuxInvalidEntryNameCharactersProvider,
+from entry.invalid_entry_name_character_provider import (
+    LinuxInvalidEntryNameCharacterProvider,
 )
-from entry.invalid_entry_names_provider import LinuxInvalidEntryNamesProvider
+from entry.invalid_entry_names_provider import LinuxInvalidEntryNameProvider
 from entry.separator_provider import LinuxSeparatorProvider
 from path.validator.path_exception import (
     NonDirectoryPathException,
@@ -30,7 +30,7 @@ from tests.path_validator_test import (
     FakeNonDirectoryPathValidator,
     FakeNotExistingPathValidator,
 )
-from tests.subdirectories_provider_test import (
+from tests.directory_provider_test import (
     FakeInvalidCharactersInName,
     FakeInvalidNamesStrategy,
     FakeNeutralStrategy,
@@ -62,7 +62,7 @@ class TestEntryProvider(unittest.TestCase):
         )
 
         # Entry validator
-        self.invalid_characters_provider = LinuxInvalidEntryNameCharactersProvider()
+        self.invalid_characters_provider = LinuxInvalidEntryNameCharacterProvider()
         not_existing_entry_validator = EntryAdapterForPathValidator(
             self.not_existing_path_validator
         )
@@ -70,7 +70,7 @@ class TestEntryProvider(unittest.TestCase):
             self.invalid_characters_provider
         )
 
-        self.invalid_names_provider = LinuxInvalidEntryNamesProvider()
+        self.invalid_names_provider = LinuxInvalidEntryNameProvider()
         invalid_name_validator = InvalidEntryNameValidator(self.invalid_names_provider)
 
         self.entry_names_provider = FakeOsListdirEntryNamesProvider()
@@ -174,7 +174,7 @@ class TestEntryProvider(unittest.TestCase):
             )
         )
 
-        with self.assertRaises(InvalidEntryNameCharactersException):
+        with self.assertRaises(InvalidEntryNameCharacterException):
             self.entry_provider.get(self.directory_path)
 
     def test_get_with_reserved_entry_name(self):

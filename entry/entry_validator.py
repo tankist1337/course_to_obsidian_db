@@ -4,13 +4,13 @@ from base.validator import IValidator
 
 from entry.entry import FileSystemEntry
 from entry.entry_exception import (
-    InvalidEntryNameCharactersException,
+    InvalidEntryNameCharacterException,
     InvalidEntryNameException,
 )
-from entry.invalid_entry_name_characters_provider import (
-    IInvalidEntryNameCharactersProvider,
+from entry.invalid_entry_name_character_provider import (
+    IInvalidEntryNameCharacterProvider,
 )
-from entry.invalid_entry_names_provider import IInvalidEntryNamesProvider
+from entry.invalid_entry_names_provider import IInvalidEntryNameProvider
 from path.validator.path_validator import IPathValidator
 
 
@@ -21,7 +21,7 @@ class IEntryValidator(IValidator[FileSystemEntry], ABC):
 
 
 class InvalidEntryNameValidator(IEntryValidator):
-    def __init__(self, invalid_names_provider: IInvalidEntryNamesProvider):
+    def __init__(self, invalid_names_provider: IInvalidEntryNameProvider):
         self.invalid_names_provider = invalid_names_provider
 
     def validate(self, item: FileSystemEntry):
@@ -33,15 +33,13 @@ class InvalidEntryNameValidator(IEntryValidator):
 
 
 class InvalidEntryNameCharactersValidator(IEntryValidator):
-    def __init__(
-        self, invalid_characters_provider: IInvalidEntryNameCharactersProvider
-    ):
+    def __init__(self, invalid_characters_provider: IInvalidEntryNameCharacterProvider):
         self.invalid_characters_provider = invalid_characters_provider
 
     def validate(self, item: FileSystemEntry):
         for invalid_character in self.invalid_characters_provider.get():
             if invalid_character in item.name:
-                raise InvalidEntryNameCharactersException(
+                raise InvalidEntryNameCharacterException(
                     f'The entry name "{item.name}" has invalid character: "{invalid_character}"'
                 )
 

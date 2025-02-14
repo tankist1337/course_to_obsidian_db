@@ -4,7 +4,7 @@ from base.validator import ValidatorManager
 
 from entry.entry import Directory, FileSystemEntry
 from entry.entry_exception import (
-    InvalidEntryNameCharactersException,
+    InvalidEntryNameCharacterException,
     InvalidEntryNameException,
 )
 from entry.entry_validator import (
@@ -12,15 +12,15 @@ from entry.entry_validator import (
     InvalidEntryNameCharactersValidator,
     InvalidEntryNameValidator,
 )
-from entry.invalid_entry_name_characters_provider import (
-    LinuxInvalidEntryNameCharactersProvider,
+from entry.invalid_entry_name_character_provider import (
+    LinuxInvalidEntryNameCharacterProvider,
 )
 from entry.invalid_entry_names_provider import (
-    LinuxInvalidEntryNamesProvider,
+    LinuxInvalidEntryNameProvider,
 )
 from path.validator.path_exception import NotExistingPathException
-from subdirectories.directory_filter import DirectoryFilter
-from subdirectories.entry_factory import DirectoryFactory
+from directory.directory_filter import DirectoryFilter
+from entry.entry_factory import DirectoryFactory
 from tests.entry_validator_test import (
     FakeEntryWithInvalidCharactersMaker,
 )
@@ -32,11 +32,11 @@ from tests.path_validator_test import (
 
 class TestDirectoryFilter(unittest.TestCase):
     def setUp(self):
-        self.invalid_characters_provider = LinuxInvalidEntryNameCharactersProvider()
+        self.invalid_characters_provider = LinuxInvalidEntryNameCharacterProvider()
         invalid_characters_validator = InvalidEntryNameCharactersValidator(
             self.invalid_characters_provider
         )
-        self.invalid_names_provider = LinuxInvalidEntryNamesProvider()
+        self.invalid_names_provider = LinuxInvalidEntryNameProvider()
         invalid_name_validator = InvalidEntryNameValidator(self.invalid_names_provider)
         self.non_directory_path_validator = FakeNonDirectoryPathValidator()
         non_directory_entry_validator = EntryAdapterForPathValidator(
@@ -115,13 +115,13 @@ class TestDirectoryFilter(unittest.TestCase):
             self.directory_filter.filter(entries)
 
     def test_filter_with_invalid_characters_in_name(self):
-        invalid_entries_maker = FakeEntryWithInvalidCharactersMaker(
+        invalid_entry_maker = FakeEntryWithInvalidCharactersMaker(
             self.invalid_characters_provider
         )
-        entries = invalid_entries_maker.get()
+        entries = invalid_entry_maker.get()
 
         for entry in entries:
-            with self.assertRaises(InvalidEntryNameCharactersException):
+            with self.assertRaises(InvalidEntryNameCharacterException):
                 self.directory_filter.filter({entry})
 
     def test_filter_with_empty_entry_name(self):
@@ -173,8 +173,8 @@ class TestDirectoryFilter(unittest.TestCase):
         self.assertEqual(len(filtered_entries), 0, "There shouldn't be any directories")
 
     def test_filter_with_no_entries(self):
-        entries_paths = set()
+        entry_paths = set()
 
-        directories = self.directory_filter.filter(entries_paths)
+        directories = self.directory_filter.filter(entry_paths)
 
         self.assertEqual(len(directories), 0, "There shouldn't be any entries")

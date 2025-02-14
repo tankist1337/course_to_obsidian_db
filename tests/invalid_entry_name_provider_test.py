@@ -1,13 +1,13 @@
 import unittest
 
 from entry.invalid_entry_names_provider import (
-    LinuxInvalidEntryNamesProvider,
+    LinuxInvalidEntryNameProvider,
 )
 
 
-class TestLinuxInvalidEntryNamesProvider(unittest.TestCase):
+class TestLinuxInvalidEntryNameProvider(unittest.TestCase):
     def test_get(self):
-        provider = LinuxInvalidEntryNamesProvider()
+        provider = LinuxInvalidEntryNameProvider()
 
         invalid_names = provider.get()
 

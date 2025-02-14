@@ -2,7 +2,7 @@ import unittest
 
 from entry.entry import FileSystemEntry
 from entry.entry_exception import (
-    InvalidEntryNameCharactersException,
+    InvalidEntryNameCharacterException,
     InvalidEntryNameException,
 )
 from entry.entry_validator import (
@@ -10,12 +10,12 @@ from entry.entry_validator import (
     InvalidEntryNameCharactersValidator,
     InvalidEntryNameValidator,
 )
-from entry.invalid_entry_name_characters_provider import (
-    IInvalidEntryNameCharactersProvider,
-    LinuxInvalidEntryNameCharactersProvider,
+from entry.invalid_entry_name_character_provider import (
+    IInvalidEntryNameCharacterProvider,
+    LinuxInvalidEntryNameCharacterProvider,
 )
 from entry.invalid_entry_names_provider import (
-    LinuxInvalidEntryNamesProvider,
+    LinuxInvalidEntryNameProvider,
 )
 from path.validator.path_exception import (
     NonDirectoryPathException,
@@ -29,7 +29,7 @@ from tests.path_validator_test import (
 
 class TestInvalidEntryNameValidator(unittest.TestCase):
     def setUp(self):
-        self.invalid_names_provider = LinuxInvalidEntryNamesProvider()
+        self.invalid_names_provider = LinuxInvalidEntryNameProvider()
         self.validator = InvalidEntryNameValidator(self.invalid_names_provider)
 
     def test_validate_with_valid_name(self):
@@ -60,7 +60,7 @@ class TestInvalidEntryNameValidator(unittest.TestCase):
 
 class TestInvalidEntryNameCharactersValidator(unittest.TestCase):
     def setUp(self):
-        self.invalid_characters_provider = LinuxInvalidEntryNameCharactersProvider()
+        self.invalid_characters_provider = LinuxInvalidEntryNameCharacterProvider()
         self.validator = InvalidEntryNameCharactersValidator(
             self.invalid_characters_provider
         )
@@ -81,14 +81,14 @@ class TestInvalidEntryNameCharactersValidator(unittest.TestCase):
         entries = invalid_entries_maker.get()
 
         for entry in entries:
-            with self.assertRaises(InvalidEntryNameCharactersException):
+            with self.assertRaises(InvalidEntryNameCharacterException):
                 self.validator.validate(entry)
 
 
 class FakeEntryWithInvalidCharactersMaker:
     def __init__(
         self,
-        invalid_characters_provider: IInvalidEntryNameCharactersProvider,
+        invalid_characters_provider: IInvalidEntryNameCharacterProvider,
     ):
         self.invalid_characters_provider = invalid_characters_provider
 

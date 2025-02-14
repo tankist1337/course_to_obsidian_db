@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
 
 
-class IInvalidEntryNamesProvider(ABC):
+class IInvalidEntryNameProvider(ABC):
     @abstractmethod
     def get(self) -> set[str]:
         pass
 
 
-class LinuxInvalidEntryNamesProvider(IInvalidEntryNamesProvider):
+class LinuxInvalidEntryNameProvider(IInvalidEntryNameProvider):
     def get(self) -> set[str]:
         return {".", "..", ""}

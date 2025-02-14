@@ -4,7 +4,7 @@ from base.validator import IValidator
 from entry.converter.entry_arguments import SetEntryArguments
 from entry.converter.entry_converter import IEntryConverter
 from entry.entry import FileSystemEntry
-from subdirectories.provider.entry_names_provider import IEntryNamesProvider
+from entry.entry_name_provider import IEntryNameProvider
 
 
 class IEntryProvider(ABC):
@@ -16,7 +16,7 @@ class IEntryProvider(ABC):
 class EntryProvider(IEntryProvider):
     def __init__(
         self,
-        entry_names_provider: IEntryNamesProvider,
+        entry_names_provider: IEntryNameProvider,
         converter: IEntryConverter,
         entry_validator: IValidator[FileSystemEntry] | None = None,
         directory_path_validator: IValidator[str] | None = None,

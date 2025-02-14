@@ -1,13 +1,13 @@
 import unittest
 
-from entry.invalid_entry_name_characters_provider import (
-    LinuxInvalidEntryNameCharactersProvider,
+from entry.invalid_entry_name_character_provider import (
+    LinuxInvalidEntryNameCharacterProvider,
 )
 
 
-class TestLinuxInvalidEntryNameCharactersProvider(unittest.TestCase):
+class TestLinuxInvalidEntryNameCharacterProvider(unittest.TestCase):
     def test_get(self):
-        provider = LinuxInvalidEntryNameCharactersProvider()
+        provider = LinuxInvalidEntryNameCharacterProvider()
 
         invalid_characters = provider.get()
 

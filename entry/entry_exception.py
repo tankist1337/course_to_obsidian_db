@@ -2,5 +2,5 @@ class InvalidEntryNameException(Exception):
     pass
 
 
-class InvalidEntryNameCharactersException(Exception):
+class InvalidEntryNameCharacterException(Exception):
     pass

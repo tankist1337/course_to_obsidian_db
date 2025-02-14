@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 from base.validator import IValidator
 from entry.entry import Directory, FileSystemEntry
 
+from entry.entry_factory import IEntryFactory
 from path.validator.path_exception import NonDirectoryPathException
-from subdirectories.entry_factory import IEntryFactory
 
 
 class IDirectoryFilter(ABC):
