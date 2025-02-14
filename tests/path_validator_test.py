@@ -89,18 +89,23 @@ class FakeNonDirectoryPathValidator(IPathValidator):
     def __init__(self, directory_dictionary: dict[str, bool] | None = None):
         self.directory_dictionary = directory_dictionary
 
-    def set_directories(self, directory_dictionary: dict[str, bool]):
-        self.directory_dictionary = directory_dictionary
-
-    def update_directories(self, *args: dict[str, bool]):
+    def __merge_dictionaries(self, *args: dict[str, bool]):
         merged_dictionary = {}
         for dictionary in args:
             merged_dictionary.update(dictionary)
 
+        return merged_dictionary
+
+    def set_directories(self, *args: dict[str, bool]):
+        self.directory_dictionary = self.__merge_dictionaries(*args)
+
+    def update_directories(self, *args: dict[str, bool]):
+        directories = self.__merge_dictionaries(*args)
+
         if self.directory_dictionary:
-            self.directory_dictionary.update(merged_dictionary)
+            self.directory_dictionary.update(directories)
         else:
-            self.set_directories(merged_dictionary)
+            self.set_directories(directories)
 
     def validate(self, item):
         if self.directory_dictionary is not None:
