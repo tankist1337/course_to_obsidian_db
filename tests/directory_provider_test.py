@@ -2,9 +2,13 @@ import unittest
 from abc import ABC, abstractmethod
 
 from base.validator import ValidatorManager
+from directory.directory_filter import DirectoryFilter
+from directory.directory_provider import DirectoryProvider
 from entry.converter.entry_arguments import SetEntryArguments
 from entry.converter.entry_converter import SetEntryConverter
 from entry.entry import Directory, FileSystemEntry
+from entry.entry_factory import DirectoryFactory
+from entry.entry_name_provider import OsListdirEntryNameProvider
 from entry.entry_provider import EntryProvider
 from entry.entry_validator import (
     EntryAdapterForPathValidator,
@@ -22,12 +26,6 @@ from entry.separator_provider import LinuxSeparatorProvider
 from path.validator.path_exception import (
     NonDirectoryPathException,
     NotExistingPathException,
-)
-from directory.directory_filter import DirectoryFilter
-from entry.entry_factory import DirectoryFactory
-from entry.entry_name_provider import OsListdirEntryNameProvider
-from directory.directory_provider import (
-    DirectoryProvider,
 )
 from tests.path_validator_test import (
     FakeNonDirectoryPathValidator,
