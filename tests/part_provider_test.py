@@ -1,9 +1,12 @@
 import unittest
 
 from base.validator import ValidatorManager
+from directory.directory_filter import DirectoryFilter
+from directory.directory_provider import DirectoryProvider
 from entry.converter.entry_arguments import SetEntryArguments
 from entry.converter.entry_converter import SetEntryConverter
 from entry.entry import FileSystemEntry
+from entry.entry_factory import DirectoryFactory
 from entry.entry_provider import EntryProvider
 from entry.entry_validator import (
     EntryAdapterForPathValidator,
@@ -20,19 +23,16 @@ from part.part_converter import PartConverter
 from part.part_provider import PartProvider
 from path.provider.path_provider import PathManager
 from path.validator.path_validator import NonePathValidator
-from directory.directory_filter import DirectoryFilter
-from entry.entry_factory import DirectoryFactory
-from directory.directory_provider import DirectoryProvider
-from tests.path_provider_test import FakeCliPathProvider, FakeGoodPathStrategy
-from tests.path_validator_test import (
-    FakeNonDirectoryPathValidator,
-    FakeNotExistingPathValidator,
-)
-from tests.directory_provider_test import (
+from tests.fake_entry_name_provider import (
     FakeNeutralStrategy,
     FakeNoEntryNamesStrategy,
     FakeOsListdirEntryNamesProvider,
 )
+from tests.path_validator_test import (
+    FakeNonDirectoryPathValidator,
+    FakeNotExistingPathValidator,
+)
+from tests.path_provider_test import FakeCliPathProvider, FakeGoodPathStrategy
 
 
 class TestPartProvider(unittest.TestCase):

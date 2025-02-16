@@ -1,6 +1,7 @@
 import unittest
 
-from base.validator import IValidator, ValidatorManager
+from base.validator import ValidatorManager
+from tests.fake_validator import FakeException, FakeValidator
 
 
 class TestValidatorManager(unittest.TestCase):
@@ -81,20 +82,3 @@ class TestValidatorManager(unittest.TestCase):
 
         passed_validators_number = sum(validator.is_passed for validator in validators)
         self.assertEqual(passed_validators_number, 0)
-
-
-class FakeException(Exception):
-    pass
-
-
-class FakeValidator(IValidator):
-    is_passed = False
-
-    def __init__(self, is_valid: bool):
-        self.validation = is_valid
-
-    def validate(self, item):
-        if not self.validation:
-            raise FakeException("Fake exception")
-
-        self.is_passed = True

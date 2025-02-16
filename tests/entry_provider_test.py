@@ -26,16 +26,16 @@ from path.validator.path_exception import (
 )
 from path.validator.path_validator import NonePathValidator
 from tests.entry_validator_test import FakeEntryWithInvalidCharactersMaker
-from tests.path_validator_test import (
-    FakeNonDirectoryPathValidator,
-    FakeNotExistingPathValidator,
-)
-from tests.directory_provider_test import (
+from tests.fake_entry_name_provider import (
     FakeInvalidCharactersInName,
     FakeInvalidNamesStrategy,
     FakeNeutralStrategy,
     FakeNoEntryNamesStrategy,
     FakeOsListdirEntryNamesProvider,
+)
+from tests.path_validator_test import (
+    FakeNonDirectoryPathValidator,
+    FakeNotExistingPathValidator,
 )
 
 

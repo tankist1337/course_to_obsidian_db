@@ -1,5 +1,4 @@
 import unittest
-from abc import ABC, abstractmethod
 
 from base.validator import ValidatorManager
 from directory.directory_filter import DirectoryFilter
@@ -8,7 +7,6 @@ from entry.converter.entry_arguments import SetEntryArguments
 from entry.converter.entry_converter import SetEntryConverter
 from entry.entry import Directory, FileSystemEntry
 from entry.entry_factory import DirectoryFactory
-from entry.entry_name_provider import OsListdirEntryNameProvider
 from entry.entry_provider import EntryProvider
 from entry.entry_validator import (
     EntryAdapterForPathValidator,
@@ -19,13 +17,17 @@ from entry.invalid_entry_name_character_provider import (
     LinuxInvalidEntryNameCharacterProvider,
 )
 from entry.invalid_entry_names_provider import (
-    IInvalidEntryNameProvider,
     LinuxInvalidEntryNameProvider,
 )
 from entry.separator_provider import LinuxSeparatorProvider
 from path.validator.path_exception import (
     NonDirectoryPathException,
     NotExistingPathException,
+)
+from tests.fake_entry_name_provider import (
+    FakeNeutralStrategy,
+    FakeNoDirectoriesStrategy,
+    FakeOsListdirEntryNamesProvider,
 )
 from tests.path_validator_test import (
     FakeNonDirectoryPathValidator,
@@ -186,55 +188,3 @@ class TestDirectoryProvider(unittest.TestCase):
 
         with self.assertRaises(NonDirectoryPathException):
             self.entry_provider.get(self.directory_path)
-
-
-class FakeOsListdirEntryNamesStrategy(OsListdirEntryNameProvider, ABC):
-    @abstractmethod
-    def get(self, directory_path) -> set[str]:
-        pass
-
-
-class FakeNeutralStrategy(FakeOsListdirEntryNamesStrategy):
-    def get(self, directory_path) -> set[str]:
-        return {"file1", "directory1", "all_good.txt"}
-
-
-class FakeNoEntryNamesStrategy(FakeOsListdirEntryNamesStrategy):
-    def get(self, directory_path) -> set[str]:
-        return set()
-
-
-class FakeNoDirectoriesStrategy(FakeOsListdirEntryNamesStrategy):
-    def get(self, directory_path) -> set[str]:
-        return {"file1", "file2"}
-
-
-class FakeInvalidCharactersInName(FakeOsListdirEntryNamesStrategy):
-    def __init__(self, entry_with_invalid_characters_maker):
-        self.entry_with_invalid_characters_maker = entry_with_invalid_characters_maker
-
-    def get(self, directory_path):
-        invalid_entries = self.entry_with_invalid_characters_maker.get()
-
-        return {entry.name for entry in invalid_entries}
-
-
-class FakeInvalidNamesStrategy(FakeOsListdirEntryNamesStrategy):
-    def __init__(self, invalid_names_provider: IInvalidEntryNameProvider):
-        self.invalid_names_provider = invalid_names_provider
-
-    def get(self, directory_path):
-        return self.invalid_names_provider.get()
-
-
-class FakeOsListdirEntryNamesProvider(OsListdirEntryNameProvider):
-    def __init__(self, strategy: FakeOsListdirEntryNamesStrategy | None = None):
-        self.strategy = strategy
-
-    def set_strategy(self, strategy):
-        self.strategy = strategy
-
-    def get(self, directory_path) -> set[str]:
-        if self.strategy:
-            return self.strategy.get(directory_path)
-        raise TypeError
