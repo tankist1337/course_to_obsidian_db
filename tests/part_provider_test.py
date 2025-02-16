@@ -5,7 +5,7 @@ from directory.directory_filter import DirectoryFilter
 from directory.directory_provider import DirectoryProvider
 from entry.converter.entry_arguments import SetEntryArguments
 from entry.converter.entry_converter import SetEntryConverter
-from entry.entry import FileSystemEntry
+from entry.entry import Directory, FileSystemEntry
 from entry.entry_factory import DirectoryFactory
 from entry.entry_provider import EntryProvider
 from entry.entry_validator import (
@@ -135,7 +135,15 @@ class TestPartProvider(unittest.TestCase):
 
         parts = self.part_provider.get()
 
-        expected_parts = {Part(name="directory1")}
+        expected_parts = {
+            Part(
+                directory=Directory(
+                    name="directory1",
+                    directory_path="directory/for/tests/",
+                    path="directory/for/tests/directory1",
+                ),
+            )
+        }
         self.assertEqual(
             parts,
             expected_parts,
