@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 from base.validator import IValidator
 from entry.entry import Directory, FileSystemEntry
 
+from entry.entry_factory import IEntryFactory
 from path.validator.path_exception import NonDirectoryPathException
-from subdirectories.entry_factory import IEntryFactory
 
 
 class IDirectoryFilter(ABC):
@@ -13,8 +13,8 @@ class IDirectoryFilter(ABC):
 
 
 class DirectoryFilter(IDirectoryFilter):
-    def __init__(self, validator_manager: IValidator, directory_factory: IEntryFactory):
-        self.validator_manager = validator_manager
+    def __init__(self, validator: IValidator, directory_factory: IEntryFactory):
+        self.validator = validator
         self.directory_factory = directory_factory
 
     def filter(self, entries: set[FileSystemEntry]) -> set[Directory]:
@@ -22,7 +22,7 @@ class DirectoryFilter(IDirectoryFilter):
 
         for entry in entries:
             try:
-                self.validator_manager.validate(entry)
+                self.validator.validate(entry)
                 directories.add(self.directory_factory.from_entry(entry))
             except NonDirectoryPathException:
                 continue

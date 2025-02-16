@@ -1,9 +1,8 @@
-from abc import ABC, abstractmethod
 import argparse
 import unittest
 from unittest.mock import patch
 from base.validator import ValidatorManager
-from path.provider.path_provider import IPathProvider, PathManager
+from path.provider.path_provider import PathManager
 from path.validator.path_exception import (
     NonDirectoryPathException,
     NonePathException,
@@ -14,6 +13,11 @@ from path.validator.path_validator import (
 )
 
 from path.provider.path_provider import CliPathProvider
+from tests.fake_path_provider import (
+    FakeCliPathProvider,
+    FakeGoodPathStrategy,
+    FakeNoneStrategy,
+)
 from tests.path_validator_test import (
     FakeNonDirectoryPathValidator,
     FakeNotExistingPathValidator,
@@ -87,30 +91,3 @@ class TestPathManager(unittest.TestCase):
 
         with self.assertRaises(NonDirectoryPathException):
             self.path_manager.get()
-
-
-class FakeCliPathStrategy(IPathProvider, ABC):
-    @abstractmethod
-    def get(self) -> str | None:
-        pass
-
-
-class FakeGoodPathStrategy(FakeCliPathStrategy):
-    def get(self):
-        return "directory/for/tests/"
-
-
-class FakeNoneStrategy(FakeCliPathStrategy):
-    def get(self):
-        return None
-
-
-class FakeCliPathProvider(IPathProvider):
-    def __init__(self, strategy: FakeCliPathStrategy | None = None):
-        self.strategy = strategy
-
-    def set_strategy(self, strategy):
-        self.strategy = strategy
-
-    def get(self):
-        return self.strategy.get() if self.strategy else None

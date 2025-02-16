@@ -3,30 +3,30 @@ from abc import ABC, abstractmethod
 from part.part import Part
 from part.part_converter import IPartConverter
 from path.provider.path_provider import IPathManager
-from subdirectories.subdirectories_provider import ISubdirectoriesProvider
+from directory.directory_provider import IDirectoryProvider
 
 
-class IPartsProvider(ABC):
+class IPartProvider(ABC):
     @abstractmethod
     def get(self) -> set[Part]:
         pass
 
 
-class PartsProvider(IPartsProvider):
+class PartProvider(IPartProvider):
     def __init__(
         self,
         path_provider: IPathManager,
-        subdirectories_provider: ISubdirectoriesProvider,
+        directory_provider: IDirectoryProvider,
         converter: IPartConverter,
     ):
         self.path_provider = path_provider
-        self.subdirectories_provider = subdirectories_provider
+        self.directory_provider = directory_provider
         self.converter = converter
 
     def get(self) -> set[Part]:
         directory_path = self.path_provider.get()
-        subdirectories = self.subdirectories_provider.get(directory_path)
+        directories = self.directory_provider.get(directory_path)
 
-        parts = self.converter.convert(subdirectories)
+        parts = self.converter.convert(directories)
 
         return parts

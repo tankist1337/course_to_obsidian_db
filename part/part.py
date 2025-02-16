@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 
+from entry.entry import Directory
+
 
 @dataclass(unsafe_hash=True)
 class Part:
-    name: str
+    directory: Directory

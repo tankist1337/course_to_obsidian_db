@@ -1,13 +1,12 @@
 import unittest
 
 from base.validator import ValidatorManager
-from directory.directory_filter import DirectoryFilter
-from entry.entry import Directory, FileSystemEntry
+from entry.entry import File, FileSystemEntry
 from entry.entry_exception import (
     InvalidEntryNameCharacterException,
     InvalidEntryNameException,
 )
-from entry.entry_factory import DirectoryFactory
+from entry.entry_factory import FileFactory
 from entry.entry_validator import (
     EntryAdapterForPathValidator,
     InvalidEntryNameCharactersValidator,
@@ -19,44 +18,51 @@ from entry.invalid_entry_name_character_provider import (
 from entry.invalid_entry_names_provider import (
     LinuxInvalidEntryNameProvider,
 )
+from file.file_filter import FileFilter
 from path.validator.path_exception import NotExistingPathException
 from tests.entry_validator_test import (
     FakeEntryWithInvalidCharactersMaker,
 )
+from tests.fake_path_validator import FakeNonFilePathValidator
 from tests.path_validator_test import (
-    FakeNonDirectoryPathValidator,
     FakeNotExistingPathValidator,
 )
 
 
-class TestDirectoryFilter(unittest.TestCase):
+class TestFileFilter(unittest.TestCase):
     def setUp(self):
         self.invalid_characters_provider = LinuxInvalidEntryNameCharacterProvider()
+
+        self.not_existing_path_validator = FakeNotExistingPathValidator()
+        self.non_file_path_validator = FakeNonFilePathValidator()
+
         invalid_characters_validator = InvalidEntryNameCharactersValidator(
             self.invalid_characters_provider
         )
         self.invalid_names_provider = LinuxInvalidEntryNameProvider()
         invalid_name_validator = InvalidEntryNameValidator(self.invalid_names_provider)
-        self.non_directory_path_validator = FakeNonDirectoryPathValidator()
-        non_directory_entry_validator = EntryAdapterForPathValidator(
-            self.non_directory_path_validator
-        )
-        self.not_existing_path_validator = FakeNotExistingPathValidator()
         not_existing_entry_validator = EntryAdapterForPathValidator(
             self.not_existing_path_validator
         )
-        validators = [
+        non_file_entry_validator = EntryAdapterForPathValidator(
+            self.non_file_path_validator
+        )
+
+        filter_validators = [
             invalid_name_validator,
             invalid_characters_validator,
             not_existing_entry_validator,
-            non_directory_entry_validator,
+            non_file_entry_validator,
         ]
-        validator_manager = ValidatorManager[FileSystemEntry](validators=validators)
-        self.directory_factory = DirectoryFactory()
 
-        self.directory_filter = DirectoryFilter(
-            validator=validator_manager,
-            directory_factory=self.directory_factory,
+        file_filter_validator = ValidatorManager[FileSystemEntry](
+            validators=filter_validators
+        )
+
+        file_factory = FileFactory()
+        self.file_filter = FileFilter(
+            validator=file_filter_validator,
+            factory=file_factory,
         )
 
     def test_filter(self):
@@ -77,24 +83,29 @@ class TestDirectoryFilter(unittest.TestCase):
                 path="directory1/directory1",
             ),
         }
-        self.non_directory_path_validator.update_directories(
-            {entry.path: "directory" in entry.name for entry in entries}
+        self.non_file_path_validator.update_files(
+            {entry.path: "file" in entry.name for entry in entries}
         )
 
-        directories = self.directory_filter.filter(entries)
+        files = self.file_filter.filter(entries)
 
-        expected_directories = {
-            Directory(
-                name="directory1",
+        expected_files = {
+            File(
+                name="file1.txt",
                 directory_path="directory1/",
-                path="directory1/directory1",
-            )
+                path="directory1/file1.txt",
+            ),
+            File(
+                name="file2",
+                directory_path="directory1/",
+                path="directory1/file2",
+            ),
         }
 
         self.assertEqual(
-            directories,
-            expected_directories,
-            "Directories are not the same as the expected ones",
+            files,
+            expected_files,
+            "Files are not the same as the expected ones",
         )
 
     def test_filter_with_not_existing_entry(self):
@@ -111,7 +122,7 @@ class TestDirectoryFilter(unittest.TestCase):
         )
 
         with self.assertRaises(NotExistingPathException):
-            self.directory_filter.filter(entries)
+            self.file_filter.filter(entries)
 
     def test_filter_with_invalid_characters_in_name(self):
         invalid_entry_maker = FakeEntryWithInvalidCharactersMaker(
@@ -121,7 +132,7 @@ class TestDirectoryFilter(unittest.TestCase):
 
         for entry in entries:
             with self.assertRaises(InvalidEntryNameCharacterException):
-                self.directory_filter.filter({entry})
+                self.file_filter.filter({entry})
 
     def test_filter_with_empty_entry_name(self):
         entry = FileSystemEntry(
@@ -132,7 +143,7 @@ class TestDirectoryFilter(unittest.TestCase):
         entries = {entry}
 
         with self.assertRaises(InvalidEntryNameException):
-            self.directory_filter.filter(entries)
+            self.file_filter.filter(entries)
 
     def test_filter_with_reserved_entry_name(self):
         invalid_names = self.invalid_names_provider.get()
@@ -148,32 +159,32 @@ class TestDirectoryFilter(unittest.TestCase):
 
         for entry in entries:
             with self.assertRaises(InvalidEntryNameException):
-                self.directory_filter.filter({entry})
+                self.file_filter.filter({entry})
 
-    def test_filter_with_no_directories(self):
+    def test_filter_with_no_files(self):
         entries = {
             FileSystemEntry(
-                name="file1.txt",
+                name="directory1",
                 directory_path="directory1/",
-                path="directory1/file1.txt",
+                path="directory1/directory1",
             ),
             FileSystemEntry(
-                name="file2",
+                name="directory2",
                 directory_path="directory1/",
-                path="directory1/file2",
+                path="directory1/directory2",
             ),
         }
-        self.non_directory_path_validator.update_directories(
-            {entry.path: "directory" in entry.name for entry in entries}
+        self.non_file_path_validator.update_files(
+            {entry.path: "file" in entry.name for entry in entries}
         )
 
-        filtered_entries = self.directory_filter.filter(entries)
+        filtered_entries = self.file_filter.filter(entries)
 
-        self.assertEqual(len(filtered_entries), 0, "There shouldn't be any directories")
+        self.assertEqual(len(filtered_entries), 0, "There shouldn't be any files")
 
     def test_filter_with_no_entries(self):
         entry_paths = set()
 
-        directories = self.directory_filter.filter(entry_paths)
+        files = self.file_filter.filter(entry_paths)
 
-        self.assertEqual(len(directories), 0, "There shouldn't be any entries")
+        self.assertEqual(len(files), 0, "There shouldn't be any entries")

@@ -2,7 +2,7 @@ import unittest
 
 from entry.entry import FileSystemEntry
 from entry.entry_exception import (
-    InvalidEntryNameCharactersException,
+    InvalidEntryNameCharacterException,
     InvalidEntryNameException,
 )
 from entry.entry_validator import (
@@ -10,17 +10,17 @@ from entry.entry_validator import (
     InvalidEntryNameCharactersValidator,
     InvalidEntryNameValidator,
 )
-from entry.invalid_entry_name_characters_provider import (
-    IInvalidEntryNameCharactersProvider,
-    LinuxInvalidEntryNameCharactersProvider,
+from entry.invalid_entry_name_character_provider import (
+    LinuxInvalidEntryNameCharacterProvider,
 )
 from entry.invalid_entry_names_provider import (
-    LinuxInvalidEntryNamesProvider,
+    LinuxInvalidEntryNameProvider,
 )
 from path.validator.path_exception import (
     NonDirectoryPathException,
     NotExistingPathException,
 )
+from tests.fake_entry_validator import FakeEntryWithInvalidCharactersMaker
 from tests.path_validator_test import (
     FakeNonDirectoryPathValidator,
     FakeNotExistingPathValidator,
@@ -29,7 +29,7 @@ from tests.path_validator_test import (
 
 class TestInvalidEntryNameValidator(unittest.TestCase):
     def setUp(self):
-        self.invalid_names_provider = LinuxInvalidEntryNamesProvider()
+        self.invalid_names_provider = LinuxInvalidEntryNameProvider()
         self.validator = InvalidEntryNameValidator(self.invalid_names_provider)
 
     def test_validate_with_valid_name(self):
@@ -60,7 +60,7 @@ class TestInvalidEntryNameValidator(unittest.TestCase):
 
 class TestInvalidEntryNameCharactersValidator(unittest.TestCase):
     def setUp(self):
-        self.invalid_characters_provider = LinuxInvalidEntryNameCharactersProvider()
+        self.invalid_characters_provider = LinuxInvalidEntryNameCharacterProvider()
         self.validator = InvalidEntryNameCharactersValidator(
             self.invalid_characters_provider
         )
@@ -81,53 +81,8 @@ class TestInvalidEntryNameCharactersValidator(unittest.TestCase):
         entries = invalid_entries_maker.get()
 
         for entry in entries:
-            with self.assertRaises(InvalidEntryNameCharactersException):
+            with self.assertRaises(InvalidEntryNameCharacterException):
                 self.validator.validate(entry)
-
-
-class FakeEntryWithInvalidCharactersMaker:
-    def __init__(
-        self,
-        invalid_characters_provider: IInvalidEntryNameCharactersProvider,
-    ):
-        self.invalid_characters_provider = invalid_characters_provider
-
-    def get(self, directory_path="directory/for/tests/"):
-        invalid_characters = self.invalid_characters_provider.get()
-        invalid_entries = set()
-
-        for character in invalid_characters:
-            name = "name_with_invalid_characters"
-
-            invalid_name = f"{character}{name}"
-            invalid_entry = FileSystemEntry(
-                name=invalid_name,
-                directory_path=directory_path,
-                path=directory_path + invalid_name,
-            )
-            invalid_entries.add(invalid_entry)
-
-            invalid_name = self.__put_character_in_center(name, character)
-            invalid_entry = FileSystemEntry(
-                name=invalid_name,
-                directory_path=directory_path,
-                path=directory_path + invalid_name,
-            )
-            invalid_entries.add(invalid_entry)
-
-            invalid_name = f"{name}{character}"
-            invalid_entry = FileSystemEntry(
-                name=invalid_name,
-                directory_path=directory_path,
-                path=directory_path + invalid_name,
-            )
-            invalid_entries.add(invalid_entry)
-
-        return invalid_entries
-
-    def __put_character_in_center(self, name, character):
-        center_index = int(len(name) / 2)
-        return name[:center_index] + character + name[center_index:]
 
 
 class TestNotExistingEntryValidator(unittest.TestCase):

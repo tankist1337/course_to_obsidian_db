@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from entry.entry import Directory, FileSystemEntry
+from entry.entry import Directory, File, FileSystemEntry
 
 
 class IEntryFactory[T: FileSystemEntry](ABC):
@@ -12,5 +12,12 @@ class IEntryFactory[T: FileSystemEntry](ABC):
 class DirectoryFactory(IEntryFactory[Directory]):
     def from_entry(self, entry: FileSystemEntry) -> Directory:
         return Directory(
+            name=entry.name, directory_path=entry.directory_path, path=entry.path
+        )
+
+
+class FileFactory(IEntryFactory[File]):
+    def from_entry(self, entry: FileSystemEntry) -> File:
+        return File(
             name=entry.name, directory_path=entry.directory_path, path=entry.path
         )

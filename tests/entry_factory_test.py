@@ -1,7 +1,7 @@
 import unittest
 
-from entry.entry import Directory, FileSystemEntry
-from subdirectories.entry_factory import DirectoryFactory
+from entry.entry import Directory, File, FileSystemEntry
+from entry.entry_factory import DirectoryFactory, FileFactory
 
 
 class TestDirectoryFactory(unittest.TestCase):
@@ -22,4 +22,25 @@ class TestDirectoryFactory(unittest.TestCase):
         )
         self.assertEqual(
             directory, directory_expected, "The directory isn't the same as expected"
+        )
+
+
+class TestFileFactory(unittest.TestCase):
+    def test_from_entry(self):
+        entry = FileSystemEntry(
+            name="file_or_directory",
+            directory_path="directory/for/tests",
+            path="directory/for/tests/file_or_directory",
+        )
+        factory = FileFactory()
+
+        file = factory.from_entry(entry)
+
+        directory_expected = File(
+            name="file_or_directory",
+            directory_path="directory/for/tests",
+            path="directory/for/tests/file_or_directory",
+        )
+        self.assertEqual(
+            file, directory_expected, "The directory isn't the same as expected"
         )

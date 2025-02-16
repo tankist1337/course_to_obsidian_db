@@ -15,7 +15,7 @@ class PartConverter(IPartConverter):
         parts = set[Part]()
 
         for directory in directories:
-            part = Part(name=directory.name)
+            part = Part(directory=directory)
             parts.add(part)
 
         return parts

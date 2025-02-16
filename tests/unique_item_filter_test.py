@@ -1,6 +1,6 @@
 import unittest
 
-from subdirectories.unique_item_filter import StringUniqueItemFilter
+from directory.unique_item_filter import StringUniqueItemFilter
 
 
 class TestStringUniqueItemFilter(unittest.TestCase):
