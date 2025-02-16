@@ -13,8 +13,8 @@ class IDirectoryFilter(ABC):
 
 
 class DirectoryFilter(IDirectoryFilter):
-    def __init__(self, validator_manager: IValidator, directory_factory: IEntryFactory):
-        self.validator_manager = validator_manager
+    def __init__(self, validator: IValidator, directory_factory: IEntryFactory):
+        self.validator = validator
         self.directory_factory = directory_factory
 
     def filter(self, entries: set[FileSystemEntry]) -> set[Directory]:
@@ -22,7 +22,7 @@ class DirectoryFilter(IDirectoryFilter):
 
         for entry in entries:
             try:
-                self.validator_manager.validate(entry)
+                self.validator.validate(entry)
                 directories.add(self.directory_factory.from_entry(entry))
             except NonDirectoryPathException:
                 continue

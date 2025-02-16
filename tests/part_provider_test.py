@@ -93,7 +93,6 @@ class TestPartProvider(unittest.TestCase):
 
         # Entry provider
         self.entry_provider = EntryProvider(
-            directory_path_validator=directory_path_validator_manager,
             entry_names_provider=self.entry_names_provider,
             converter=self.converter,
             entry_validator=entry_validator_manager,
@@ -106,7 +105,7 @@ class TestPartProvider(unittest.TestCase):
 
         directory_factory = DirectoryFactory()
         directory_filter = DirectoryFilter(
-            validator_manager=directory_filter_validator,
+            validator=directory_filter_validator,
             directory_factory=directory_factory,
         )
 
@@ -114,7 +113,6 @@ class TestPartProvider(unittest.TestCase):
         directory_provider = DirectoryProvider(
             entry_provider=self.entry_provider,
             directory_filter=directory_filter,
-            directory_path_validator=directory_path_validator_manager,
         )
 
         # Part provider

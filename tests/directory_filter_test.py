@@ -1,12 +1,13 @@
 import unittest
 
 from base.validator import ValidatorManager
-
+from directory.directory_filter import DirectoryFilter
 from entry.entry import Directory, FileSystemEntry
 from entry.entry_exception import (
     InvalidEntryNameCharacterException,
     InvalidEntryNameException,
 )
+from entry.entry_factory import DirectoryFactory
 from entry.entry_validator import (
     EntryAdapterForPathValidator,
     InvalidEntryNameCharactersValidator,
@@ -19,8 +20,6 @@ from entry.invalid_entry_names_provider import (
     LinuxInvalidEntryNameProvider,
 )
 from path.validator.path_exception import NotExistingPathException
-from directory.directory_filter import DirectoryFilter
-from entry.entry_factory import DirectoryFactory
 from tests.entry_validator_test import (
     FakeEntryWithInvalidCharactersMaker,
 )
@@ -56,7 +55,7 @@ class TestDirectoryFilter(unittest.TestCase):
         self.directory_factory = DirectoryFactory()
 
         self.directory_filter = DirectoryFilter(
-            validator_manager=validator_manager,
+            validator=validator_manager,
             directory_factory=self.directory_factory,
         )
 
