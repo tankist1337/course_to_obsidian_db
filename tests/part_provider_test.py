@@ -76,6 +76,7 @@ class TestPartProvider(unittest.TestCase):
         invalid_name_validator = InvalidEntryNameValidator(self.invalid_names_provider)
 
         self.entry_names_provider = FakeOsListdirEntryNamesProvider()
+        self.entry_names_provider.set_strategy(FakeNeutralStrategy())
 
         entry_validators = [
             invalid_name_validator,

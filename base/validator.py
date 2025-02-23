@@ -15,8 +15,3 @@ class ValidatorManager[T](IValidator[T], ABC):
     def validate(self, item: T):
         for validator in self.validators:
             validator.validate(item)
-
-
-class StubValidator(IValidator):
-    def validate(self, item):
-        pass
