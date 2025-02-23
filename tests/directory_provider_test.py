@@ -68,7 +68,6 @@ class TestDirectoryProvider(unittest.TestCase):
         invalid_name_validator = InvalidEntryNameValidator(invalid_names_provider)
 
         self.entry_names_provider = FakeOsListdirEntryNamesProvider()
-        self.entry_names_provider.set_strategy(FakeNeutralStrategy())
 
         entry_validators = [
             invalid_name_validator,

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from entry.entry_name_provider import OsListdirEntryNameProvider
+from typing import Optional
+from entry.entry_name_provider import IEntryNameProvider, OsListdirEntryNameProvider
 from entry.invalid_entry_names_provider import IInvalidEntryNameProvider
 
 
@@ -12,6 +13,21 @@ class FakeOsListdirEntryNamesStrategy(OsListdirEntryNameProvider, ABC):
 class FakeNeutralStrategy(FakeOsListdirEntryNamesStrategy):
     def get(self, directory_path) -> set[str]:
         return {"file1", "directory1", "all_good.txt"}
+
+
+# class FakeLecturesFilesStrategy(FakeOsListdirEntryNamesStrategy):
+#     lecture_files = {"video1.mp4", "subtitle1.srt", "other_file.rar", "directory"}
+
+#     def get(self, directory_path) -> set[str]:
+#         return self.lecture_files
+
+
+class FakeCustomEntryNamesStrategy(FakeOsListdirEntryNamesStrategy):
+    def __init__(self, entry_names):
+        self.entry_names = entry_names
+
+    def get(self, directory_path):
+        return self.entry_names
 
 
 class FakeNoEntryNamesStrategy(FakeOsListdirEntryNamesStrategy):
@@ -47,8 +63,16 @@ class FakeInvalidNamesStrategy(FakeOsListdirEntryNamesStrategy):
         return self.invalid_names_provider.get()
 
 
-class FakeOsListdirEntryNamesProvider(OsListdirEntryNameProvider):
-    def __init__(self, strategy: FakeOsListdirEntryNamesStrategy | None = None):
+class IFakeOsListdirEntryNamesProvider(IEntryNameProvider, ABC):
+    @abstractmethod
+    def set_strategy(self, strategy: Optional[FakeOsListdirEntryNamesStrategy]):
+        pass
+
+
+class FakeOsListdirEntryNamesProvider(IFakeOsListdirEntryNamesProvider):
+    def __init__(self, strategy: Optional[FakeOsListdirEntryNamesStrategy] = None):
+        if strategy is None:
+            strategy = FakeNeutralStrategy()
         self.strategy = strategy
 
     def set_strategy(self, strategy):
