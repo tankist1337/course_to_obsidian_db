@@ -9,7 +9,7 @@ class FakeOsListdirEntryNamesStrategy(OsListdirEntryNameProvider, ABC):
         pass
 
 
-class FakeNeutralStrategy(FakeOsListdirEntryNamesStrategy):
+class FakeDefaultStrategy(FakeOsListdirEntryNamesStrategy):
     def get(self, directory_path) -> set[str]:
         return {"file1", "directory1", "all_good.txt"}
 
@@ -50,7 +50,7 @@ class FakeInvalidNamesStrategy(FakeOsListdirEntryNamesStrategy):
 class FakeOsListdirEntryNamesProvider(OsListdirEntryNameProvider):
     def __init__(self, strategy: FakeOsListdirEntryNamesStrategy | None = None):
         if strategy is None:
-            strategy = FakeNeutralStrategy()
+            strategy = FakeDefaultStrategy()
 
         self.strategy = strategy
 
