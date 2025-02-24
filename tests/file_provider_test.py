@@ -25,7 +25,6 @@ from path.validator.path_exception import (
     NotExistingPathException,
 )
 from tests.directory_provider_test import (
-    FakeNeutralStrategy,
     FakeOsListdirEntryNamesProvider,
 )
 from tests.fake_entry_name_provider import FakeNoFilesStrategy
@@ -69,7 +68,6 @@ class TestFileProvider(unittest.TestCase):
         invalid_name_validator = InvalidEntryNameValidator(invalid_names_provider)
 
         self.entry_names_provider = FakeOsListdirEntryNamesProvider()
-        self.entry_names_provider.set_strategy(FakeNeutralStrategy())
 
         entry_validators = [
             invalid_name_validator,
