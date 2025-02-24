@@ -24,7 +24,6 @@ from part.part_provider import PartProvider
 from path.provider.path_provider import PathManager
 from path.validator.path_validator import NonePathValidator
 from tests.fake_entry_name_provider import (
-    FakeNeutralStrategy,
     FakeNoEntryNamesStrategy,
     FakeOsListdirEntryNamesProvider,
 )
@@ -76,7 +75,6 @@ class TestPartProvider(unittest.TestCase):
         invalid_name_validator = InvalidEntryNameValidator(self.invalid_names_provider)
 
         self.entry_names_provider = FakeOsListdirEntryNamesProvider()
-        self.entry_names_provider.set_strategy(FakeNeutralStrategy())
 
         entry_validators = [
             invalid_name_validator,

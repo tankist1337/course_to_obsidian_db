@@ -29,7 +29,6 @@ from tests.entry_validator_test import FakeEntryWithInvalidCharactersMaker
 from tests.fake_entry_name_provider import (
     FakeInvalidCharactersInName,
     FakeInvalidNamesStrategy,
-    FakeNeutralStrategy,
     FakeNoEntryNamesStrategy,
     FakeOsListdirEntryNamesProvider,
 )
@@ -74,7 +73,6 @@ class TestEntryProvider(unittest.TestCase):
         invalid_name_validator = InvalidEntryNameValidator(self.invalid_names_provider)
 
         self.entry_names_provider = FakeOsListdirEntryNamesProvider()
-        self.entry_names_provider.set_strategy(FakeNeutralStrategy())
 
         entry_validators = [
             invalid_name_validator,

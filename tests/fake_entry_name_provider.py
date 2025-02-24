@@ -49,6 +49,9 @@ class FakeInvalidNamesStrategy(FakeOsListdirEntryNamesStrategy):
 
 class FakeOsListdirEntryNamesProvider(OsListdirEntryNameProvider):
     def __init__(self, strategy: FakeOsListdirEntryNamesStrategy | None = None):
+        if strategy is None:
+            strategy = FakeNeutralStrategy()
+
         self.strategy = strategy
 
     def set_strategy(self, strategy):
