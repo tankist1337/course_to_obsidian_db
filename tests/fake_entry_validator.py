@@ -1,10 +1,17 @@
+from abc import ABC, abstractmethod
 from entry.entry import FileSystemEntry
 from entry.invalid_entry_name_character_provider import (
     IInvalidEntryNameCharacterProvider,
 )
 
 
-class FakeEntryWithInvalidCharactersMaker:
+class IEntryWithInvalidCharactersMaker(ABC):
+    @abstractmethod
+    def get(self, directory_path: str) -> set[FileSystemEntry]:
+        pass
+
+
+class FakeEntryWithInvalidCharactersMaker(IEntryWithInvalidCharactersMaker):
     def __init__(
         self,
         invalid_characters_provider: IInvalidEntryNameCharacterProvider,

@@ -1,0 +1,40 @@
+In the existing project tests has several problems:
+The first main problem is duplicated setup code in all TestCase classes.
+EntryProvider test requires 4 objects: 
+    1. entry_names_provider: IEntryNameProvider,
+    2. converter: IEntryConverter,
+    3. entry_validator: IValidator[FileSystemEntry] | None = None,
+    4. directory_path_validator: IValidator[str] | None = None,
+Converter is only one object that is isolated
+EntryNamesProvider uses os.listdir
+directory_path_validator must have ValidatorManager[str](validators)
+where validators have ExistingPathValidator and DirectoryPathValidator
+ExistingPathValidator it checks if the directory path exists
+DirectoryPathValidator it check if the directory path is a directory not a file
+Each validator has a method os.path.exists or os.path.isdir
+Entry validator has similar validators as directory_path_validator
+There are two adapters(EntryAdapterForPathValidator) that wraps
+ExistingPathValidator and DirectoryPathValidator
+and now validates FileSystemEntry instead of string
+
+Here 3 fake objects must be adjusted.
+
+If I use EntryProvider anywhere as argument 
+I need to initialize all EntryProvider dependencies
+For example DirectoryProvider and PartProvider
+
+Code is duplicated. It hard to write new tests, maintain and read existing code
+Also, PartProvider adjusts a kind of deep reference of ExistingPathValidator,DirectoryPathValidator, EntryNamesProvider
+That's wrong test, because my result of the PartProvider 
+depends on EntryNamesProvider instead of DirectoryProvider 
+
+Next problem I have the same validations.
+For example, DirectoryProvider has directory_path_validator
+as EntryProvider. DirectoryProvider validates that path is correct, 
+so EntryProvider must't do this again, and directory_path_validator 
+in this case must be None for skipping validation
+
+Next problem I have a lot of places where directory_path_validator
+and existing_path_validator is used. And I should place a reference 
+of only one object anywhere to adjust only one object
+in complicated structure 
