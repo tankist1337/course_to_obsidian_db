@@ -19,7 +19,7 @@ from tests.fake_path_provider import (
     FakeNoneStrategy,
 )
 from tests.path_validator_test import (
-    FakeNonDirectoryPathValidator,
+    FakeDirectoryPathValidator,
     FakeExistingPathValidator,
 )
 
@@ -53,11 +53,11 @@ class TestPathManager(unittest.TestCase):
         self.provider = FakeCliPathProvider(FakeGoodPathStrategy())
         none_path_validator = NonePathValidator()
         self.existing_path_validator = FakeExistingPathValidator()
-        self.non_directory_path_validator = FakeNonDirectoryPathValidator()
+        self.directory_path_validator = FakeDirectoryPathValidator()
         validators = [
             none_path_validator,
             self.existing_path_validator,
-            self.non_directory_path_validator,
+            self.directory_path_validator,
         ]
         validator_manager = ValidatorManager[str](validators)
         self.path_manager = PathManager(self.provider, validator_manager)
@@ -85,7 +85,7 @@ class TestPathManager(unittest.TestCase):
             self.path_manager.get()
 
     def test_get_with_non_directory_path(self):
-        self.non_directory_path_validator.update_directories(
+        self.directory_path_validator.update_directories(
             {self.provider.get(): False}  # type: ignore
         )
 

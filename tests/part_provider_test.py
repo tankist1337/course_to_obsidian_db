@@ -28,7 +28,7 @@ from tests.fake_entry_name_provider import (
     FakeOsListdirEntryNamesProvider,
 )
 from tests.path_validator_test import (
-    FakeNonDirectoryPathValidator,
+    FakeDirectoryPathValidator,
     FakeExistingPathValidator,
 )
 from tests.path_provider_test import FakeCliPathProvider, FakeGoodPathStrategy
@@ -39,11 +39,11 @@ class TestPartProvider(unittest.TestCase):
         # Directory path validator
         none_path_validator = NonePathValidator()
         self.existing_path_validator = FakeExistingPathValidator()
-        self.non_directory_path_validator = FakeNonDirectoryPathValidator()
+        self.directory_path_validator = FakeDirectoryPathValidator()
         directory_path_validators = [
             none_path_validator,
             self.existing_path_validator,
-            self.non_directory_path_validator,
+            self.directory_path_validator,
         ]
         directory_path_validator_manager = ValidatorManager[str](
             directory_path_validators
@@ -52,7 +52,7 @@ class TestPartProvider(unittest.TestCase):
         # Directory path
         self.directory_path = "directory/for/tests/"
 
-        self.non_directory_path_validator.update_directories(
+        self.directory_path_validator.update_directories(
             {self.directory_path: True},
         )
 
@@ -98,7 +98,7 @@ class TestPartProvider(unittest.TestCase):
 
         # Directory filter
         directory_filter_validator = EntryAdapterForPathValidator(
-            self.non_directory_path_validator
+            self.directory_path_validator
         )
 
         directory_factory = DirectoryFactory()
@@ -127,7 +127,7 @@ class TestPartProvider(unittest.TestCase):
         entries = self.converter.convert(
             SetEntryArguments(entry_names, self.directory_path)
         )
-        self.non_directory_path_validator.update_directories(
+        self.directory_path_validator.update_directories(
             {entry.path: "directory" in entry.name for entry in entries},
         )
 

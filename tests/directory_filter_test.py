@@ -24,7 +24,7 @@ from tests.entry_validator_test import (
     FakeEntryWithInvalidCharactersMaker,
 )
 from tests.path_validator_test import (
-    FakeNonDirectoryPathValidator,
+    FakeDirectoryPathValidator,
     FakeExistingPathValidator,
 )
 
@@ -37,9 +37,9 @@ class TestDirectoryFilter(unittest.TestCase):
         )
         self.invalid_names_provider = LinuxInvalidEntryNameProvider()
         invalid_name_validator = InvalidEntryNameValidator(self.invalid_names_provider)
-        self.non_directory_path_validator = FakeNonDirectoryPathValidator()
-        non_directory_entry_validator = EntryAdapterForPathValidator(
-            self.non_directory_path_validator
+        self.directory_path_validator = FakeDirectoryPathValidator()
+        directory_entry_validator = EntryAdapterForPathValidator(
+            self.directory_path_validator
         )
         self.existing_path_validator = FakeExistingPathValidator()
         existing_entry_validator = EntryAdapterForPathValidator(
@@ -49,7 +49,7 @@ class TestDirectoryFilter(unittest.TestCase):
             invalid_name_validator,
             invalid_characters_validator,
             existing_entry_validator,
-            non_directory_entry_validator,
+            directory_entry_validator,
         ]
         validator_manager = ValidatorManager[FileSystemEntry](validators=validators)
         self.directory_factory = DirectoryFactory()
@@ -77,7 +77,7 @@ class TestDirectoryFilter(unittest.TestCase):
                 path="directory1/directory1",
             ),
         }
-        self.non_directory_path_validator.update_directories(
+        self.directory_path_validator.update_directories(
             {entry.path: "directory" in entry.name for entry in entries}
         )
 
@@ -163,7 +163,7 @@ class TestDirectoryFilter(unittest.TestCase):
                 path="directory1/file2",
             ),
         }
-        self.non_directory_path_validator.update_directories(
+        self.directory_path_validator.update_directories(
             {entry.path: "directory" in entry.name for entry in entries}
         )
 

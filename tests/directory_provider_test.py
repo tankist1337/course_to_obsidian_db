@@ -29,7 +29,7 @@ from tests.fake_entry_name_provider import (
     FakeOsListdirEntryNamesProvider,
 )
 from tests.path_validator_test import (
-    FakeNonDirectoryPathValidator,
+    FakeDirectoryPathValidator,
     FakeExistingPathValidator,
 )
 
@@ -38,10 +38,10 @@ class TestDirectoryProvider(unittest.TestCase):
     def setUp(self):
         # Directory path validator
         self.existing_path_validator = FakeExistingPathValidator()
-        self.non_directory_path_validator = FakeNonDirectoryPathValidator()
+        self.directory_path_validator = FakeDirectoryPathValidator()
         directory_path_validators = [
             self.existing_path_validator,
-            self.non_directory_path_validator,
+            self.directory_path_validator,
         ]
         directory_path_validator_manager = ValidatorManager[str](
             directory_path_validators
@@ -50,7 +50,7 @@ class TestDirectoryProvider(unittest.TestCase):
         # Directory path
         self.directory_path = "directory/for/tests/"
 
-        self.non_directory_path_validator.update_directories(
+        self.directory_path_validator.update_directories(
             {self.directory_path: True},
         )
 
@@ -90,7 +90,7 @@ class TestDirectoryProvider(unittest.TestCase):
 
         # Directory filter
         directory_filter_validator = EntryAdapterForPathValidator(
-            self.non_directory_path_validator
+            self.directory_path_validator
         )
 
         directory_factory = DirectoryFactory()
@@ -111,7 +111,7 @@ class TestDirectoryProvider(unittest.TestCase):
         entries = self.converter.convert(
             SetEntryArguments(entry_names, self.directory_path)
         )
-        self.non_directory_path_validator.update_directories(
+        self.directory_path_validator.update_directories(
             {entry.path: "directory" in entry.name for entry in entries}
         )
 
@@ -136,7 +136,7 @@ class TestDirectoryProvider(unittest.TestCase):
         entries = self.converter.convert(
             SetEntryArguments(entry_names, self.directory_path)
         )
-        self.non_directory_path_validator.update_directories(
+        self.directory_path_validator.update_directories(
             {entry.path: "directory" in entry.name for entry in entries}
         )
 
@@ -154,7 +154,7 @@ class TestDirectoryProvider(unittest.TestCase):
         entries = self.converter.convert(
             SetEntryArguments(entry_names, self.directory_path)
         )
-        self.non_directory_path_validator.set_directories(
+        self.directory_path_validator.set_directories(
             {entry.path: "directory" in entry.name for entry in entries},
             {self.directory_path: True},
         )
@@ -173,15 +173,13 @@ class TestDirectoryProvider(unittest.TestCase):
         )
 
     def test_get_with_not_existing_directory_path(self):
-        self.existing_path_validator.update_existing_paths(
-            {self.directory_path: False}
-        )
+        self.existing_path_validator.update_existing_paths({self.directory_path: False})
 
         with self.assertRaises(NotExistingPathException):
             self.directory_provider.get(self.directory_path)
 
     def test_get_with_non_directory_path(self):
-        self.non_directory_path_validator.update_directories(
+        self.directory_path_validator.update_directories(
             {self.directory_path: False}
         )
 

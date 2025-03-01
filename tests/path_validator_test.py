@@ -11,7 +11,7 @@ from path.validator.path_validator import (
     NonePathValidator,
 )
 from tests.fake_path_validator import (
-    FakeNonDirectoryPathValidator,
+    FakeDirectoryPathValidator,
     FakeExistingPathValidator,
     FakePathValidator,
 )
@@ -33,16 +33,16 @@ class TestNonePathValidator(unittest.TestCase):
             self.validator.validate(path)
 
 
-class TestNonDirectoryPathValidator(unittest.TestCase):
+class TestDirectoryPathValidator(unittest.TestCase):
     def test_validate_is_directory(self):
         path = "directory/for/tests/"
-        validator = FakeNonDirectoryPathValidator(directory_dictionary={path: True})
+        validator = FakeDirectoryPathValidator(directory_dictionary={path: True})
 
         validator.validate(path)
 
     def test_validate_is_not_directory(self):
         path = "directory/for/tests/raise.txt"
-        validator = FakeNonDirectoryPathValidator(directory_dictionary={path: False})
+        validator = FakeDirectoryPathValidator(directory_dictionary={path: False})
 
         with self.assertRaises(NonDirectoryPathException):
             validator.validate(path)

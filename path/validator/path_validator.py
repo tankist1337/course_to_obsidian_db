@@ -28,7 +28,7 @@ class NonFilePathValidator(IPathValidator):
 
 
 # todo: Review this class os.path.isdir
-class NonDirectoryPathValidator(IPathValidator):
+class DirectoryPathValidator(IPathValidator):
     def validate(self, item):
         if not os.path.isdir(item):  # type: ignore
             raise NonDirectoryPathException(f"The path {item} is not a directory")

@@ -34,7 +34,7 @@ class FakeExistingPathValidator(IPathValidator):
             pass
 
 
-class FakeNonDirectoryPathValidator(IPathValidator):
+class FakeDirectoryPathValidator(IPathValidator):
     def __init__(self, directory_dictionary: dict[str, bool] | None = None):
         self.directory_dictionary = directory_dictionary
 

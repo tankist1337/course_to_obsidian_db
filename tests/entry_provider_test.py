@@ -33,7 +33,7 @@ from tests.fake_entry_name_provider import (
     FakeOsListdirEntryNamesProvider,
 )
 from tests.path_validator_test import (
-    FakeNonDirectoryPathValidator,
+    FakeDirectoryPathValidator,
     FakeExistingPathValidator,
 )
 
@@ -43,11 +43,11 @@ class TestEntryProvider(unittest.TestCase):
         # Directory path validator
         none_path_validator = NonePathValidator()
         self.existing_path_validator = FakeExistingPathValidator()
-        self.non_directory_path_validator = FakeNonDirectoryPathValidator()
+        self.directory_path_validator = FakeDirectoryPathValidator()
         directory_path_validators = [
             none_path_validator,
             self.existing_path_validator,
-            self.non_directory_path_validator,
+            self.directory_path_validator,
         ]
         directory_path_validator_manager = ValidatorManager[str](
             directory_path_validators
@@ -56,7 +56,7 @@ class TestEntryProvider(unittest.TestCase):
         # Directory path
         self.directory_path = "directory/for/tests/"
 
-        self.non_directory_path_validator.update_directories(
+        self.directory_path_validator.update_directories(
             {self.directory_path: True},
         )
 
@@ -126,7 +126,7 @@ class TestEntryProvider(unittest.TestCase):
 
     def test_get_with_directory_path_not_closed_by_separator(self):
         self.directory_path = "directory/for/tests"
-        self.non_directory_path_validator.set_directories({self.directory_path: True})
+        self.directory_path_validator.set_directories({self.directory_path: True})
 
         entries = self.entry_provider.get(self.directory_path)
 
@@ -150,15 +150,13 @@ class TestEntryProvider(unittest.TestCase):
         self.assertEqual(entries, expected, "Entries aren't the same as expected")
 
     def test_get_with_not_existing_directory_path(self):
-        self.existing_path_validator.update_existing_paths(
-            {self.directory_path: False}
-        )
+        self.existing_path_validator.update_existing_paths({self.directory_path: False})
 
         with self.assertRaises(NotExistingPathException):
             self.entry_provider.get(self.directory_path)
 
     def test_get_with_non_directory_path(self):
-        self.non_directory_path_validator.update_directories(
+        self.directory_path_validator.update_directories(
             {self.directory_path: False}
         )
 
