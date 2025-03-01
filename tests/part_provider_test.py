@@ -29,7 +29,7 @@ from tests.fake_entry_name_provider import (
 )
 from tests.path_validator_test import (
     FakeNonDirectoryPathValidator,
-    FakeNotExistingPathValidator,
+    FakeExistingPathValidator,
 )
 from tests.path_provider_test import FakeCliPathProvider, FakeGoodPathStrategy
 
@@ -38,11 +38,11 @@ class TestPartProvider(unittest.TestCase):
     def setUp(self):
         # Directory path validator
         none_path_validator = NonePathValidator()
-        self.not_existing_path_validator = FakeNotExistingPathValidator()
+        self.existing_path_validator = FakeExistingPathValidator()
         self.non_directory_path_validator = FakeNonDirectoryPathValidator()
         directory_path_validators = [
             none_path_validator,
-            self.not_existing_path_validator,
+            self.existing_path_validator,
             self.non_directory_path_validator,
         ]
         directory_path_validator_manager = ValidatorManager[str](
@@ -64,8 +64,8 @@ class TestPartProvider(unittest.TestCase):
 
         # Entry validator
         self.invalid_characters_provider = LinuxInvalidEntryNameCharacterProvider()
-        not_existing_entry_validator = EntryAdapterForPathValidator(
-            self.not_existing_path_validator
+        existing_entry_validator = EntryAdapterForPathValidator(
+            self.existing_path_validator
         )
         invalid_characters_validator = InvalidEntryNameCharactersValidator(
             self.invalid_characters_provider
@@ -79,7 +79,7 @@ class TestPartProvider(unittest.TestCase):
         entry_validators = [
             invalid_name_validator,
             invalid_characters_validator,
-            not_existing_entry_validator,
+            existing_entry_validator,
         ]
         entry_validator_manager = ValidatorManager[FileSystemEntry](
             validators=entry_validators
@@ -107,7 +107,7 @@ class TestPartProvider(unittest.TestCase):
             directory_factory=directory_factory,
         )
 
-        # directory provider
+        # Directory provider
         directory_provider = DirectoryProvider(
             entry_provider=self.entry_provider,
             directory_filter=directory_filter,

@@ -12,7 +12,7 @@ from path.validator.path_validator import (
 )
 from tests.fake_path_validator import (
     FakeNonDirectoryPathValidator,
-    FakeNotExistingPathValidator,
+    FakeExistingPathValidator,
     FakePathValidator,
 )
 
@@ -51,13 +51,13 @@ class TestNonDirectoryPathValidator(unittest.TestCase):
 class TestNotExistingPathValidator(unittest.TestCase):
     def test_validate_is_existing(self):
         path = "directory/for/tests/raise.txt"
-        validator = FakeNotExistingPathValidator(existing_path_dictionary={path: True})
+        validator = FakeExistingPathValidator(existing_path_dictionary={path: True})
 
         validator.validate(path)
 
     def test_validate_is_not_existing(self):
         path = "directory/for/tests/raise.png"
-        validator = FakeNotExistingPathValidator(existing_path_dictionary={path: False})
+        validator = FakeExistingPathValidator(existing_path_dictionary={path: False})
 
         with self.assertRaises(NotExistingPathException):
             validator.validate(path)

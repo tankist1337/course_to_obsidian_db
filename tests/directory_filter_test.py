@@ -25,7 +25,7 @@ from tests.entry_validator_test import (
 )
 from tests.path_validator_test import (
     FakeNonDirectoryPathValidator,
-    FakeNotExistingPathValidator,
+    FakeExistingPathValidator,
 )
 
 
@@ -41,14 +41,14 @@ class TestDirectoryFilter(unittest.TestCase):
         non_directory_entry_validator = EntryAdapterForPathValidator(
             self.non_directory_path_validator
         )
-        self.not_existing_path_validator = FakeNotExistingPathValidator()
-        not_existing_entry_validator = EntryAdapterForPathValidator(
-            self.not_existing_path_validator
+        self.existing_path_validator = FakeExistingPathValidator()
+        existing_entry_validator = EntryAdapterForPathValidator(
+            self.existing_path_validator
         )
         validators = [
             invalid_name_validator,
             invalid_characters_validator,
-            not_existing_entry_validator,
+            existing_entry_validator,
             non_directory_entry_validator,
         ]
         validator_manager = ValidatorManager[FileSystemEntry](validators=validators)
@@ -104,7 +104,7 @@ class TestDirectoryFilter(unittest.TestCase):
             path="directory1/not_existing_directory1",
         )
         entries = {entry}
-        self.not_existing_path_validator.update_existing_paths(
+        self.existing_path_validator.update_existing_paths(
             {
                 entry.path: False,
             }

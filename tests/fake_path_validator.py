@@ -8,7 +8,7 @@ from path.validator.path_exception import (
 from path.validator.path_validator import IPathValidator
 
 
-class FakeNotExistingPathValidator(IPathValidator):
+class FakeExistingPathValidator(IPathValidator):
     def __init__(self, existing_path_dictionary: dict[str, bool] | None = None):
         self.existing_path_dictionary = existing_path_dictionary
 

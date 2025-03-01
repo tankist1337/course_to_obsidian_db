@@ -25,7 +25,7 @@ from tests.entry_validator_test import (
 )
 from tests.fake_path_validator import FakeNonFilePathValidator
 from tests.path_validator_test import (
-    FakeNotExistingPathValidator,
+    FakeExistingPathValidator,
 )
 
 
@@ -33,7 +33,7 @@ class TestFileFilter(unittest.TestCase):
     def setUp(self):
         self.invalid_characters_provider = LinuxInvalidEntryNameCharacterProvider()
 
-        self.not_existing_path_validator = FakeNotExistingPathValidator()
+        self.existing_path_validator = FakeExistingPathValidator()
         self.non_file_path_validator = FakeNonFilePathValidator()
 
         invalid_characters_validator = InvalidEntryNameCharactersValidator(
@@ -41,8 +41,8 @@ class TestFileFilter(unittest.TestCase):
         )
         self.invalid_names_provider = LinuxInvalidEntryNameProvider()
         invalid_name_validator = InvalidEntryNameValidator(self.invalid_names_provider)
-        not_existing_entry_validator = EntryAdapterForPathValidator(
-            self.not_existing_path_validator
+        existing_entry_validator = EntryAdapterForPathValidator(
+            self.existing_path_validator
         )
         non_file_entry_validator = EntryAdapterForPathValidator(
             self.non_file_path_validator
@@ -51,7 +51,7 @@ class TestFileFilter(unittest.TestCase):
         filter_validators = [
             invalid_name_validator,
             invalid_characters_validator,
-            not_existing_entry_validator,
+            existing_entry_validator,
             non_file_entry_validator,
         ]
 
@@ -115,7 +115,7 @@ class TestFileFilter(unittest.TestCase):
             path="directory1/not_existing_directory1",
         )
         entries = {entry}
-        self.not_existing_path_validator.update_existing_paths(
+        self.existing_path_validator.update_existing_paths(
             {
                 entry.path: False,
             }

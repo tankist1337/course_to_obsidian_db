@@ -23,7 +23,7 @@ from path.validator.path_exception import (
 from tests.fake_entry_validator import FakeEntryWithInvalidCharactersMaker
 from tests.path_validator_test import (
     FakeNonDirectoryPathValidator,
-    FakeNotExistingPathValidator,
+    FakeExistingPathValidator,
 )
 
 
@@ -87,7 +87,7 @@ class TestInvalidEntryNameCharactersValidator(unittest.TestCase):
 
 class TestNotExistingEntryValidator(unittest.TestCase):
     def setUp(self):
-        self.path_validator = FakeNotExistingPathValidator()
+        self.path_validator = FakeExistingPathValidator()
         self.entry_validator = EntryAdapterForPathValidator(self.path_validator)
 
     def test_validate_existing_entry(self):

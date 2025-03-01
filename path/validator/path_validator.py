@@ -35,7 +35,7 @@ class NonDirectoryPathValidator(IPathValidator):
 
 
 # todo: Review this class os.path.exists
-class NotExistingPathValidator(IPathValidator):
+class ExistingPathValidator(IPathValidator):
     def validate(self, item):
         if not os.path.exists(item):  # type: ignore
             raise NotExistingPathException(f"The path {item} doesn't exist")
