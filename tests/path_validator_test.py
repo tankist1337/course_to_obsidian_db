@@ -11,8 +11,8 @@ from path.validator.path_validator import (
     NonePathValidator,
 )
 from tests.fake_path_validator import (
-    FakeDirectoryPathValidator,
-    FakeExistingPathValidator,
+    FakeNonDirectoryPathValidator,
+    FakeNotExistingPathValidator,
     FakePathValidator,
 )
 
@@ -33,31 +33,31 @@ class TestNonePathValidator(unittest.TestCase):
             self.validator.validate(path)
 
 
-class TestDirectoryPathValidator(unittest.TestCase):
+class TestNonDirectoryPathValidator(unittest.TestCase):
     def test_validate_is_directory(self):
         path = "directory/for/tests/"
-        validator = FakeDirectoryPathValidator(directory_dictionary={path: True})
+        validator = FakeNonDirectoryPathValidator(directory_dictionary={path: True})
 
         validator.validate(path)
 
     def test_validate_is_not_directory(self):
         path = "directory/for/tests/raise.txt"
-        validator = FakeDirectoryPathValidator(directory_dictionary={path: False})
+        validator = FakeNonDirectoryPathValidator(directory_dictionary={path: False})
 
         with self.assertRaises(NonDirectoryPathException):
             validator.validate(path)
 
 
-class TestExistingPathValidator(unittest.TestCase):
+class TestNotExistingPathValidator(unittest.TestCase):
     def test_validate_is_existing(self):
         path = "directory/for/tests/raise.txt"
-        validator = FakeExistingPathValidator(existing_path_dictionary={path: True})
+        validator = FakeNotExistingPathValidator(existing_path_dictionary={path: True})
 
         validator.validate(path)
 
     def test_validate_is_not_existing(self):
         path = "directory/for/tests/raise.png"
-        validator = FakeExistingPathValidator(existing_path_dictionary={path: False})
+        validator = FakeNotExistingPathValidator(existing_path_dictionary={path: False})
 
         with self.assertRaises(NotExistingPathException):
             validator.validate(path)
