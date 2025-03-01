@@ -28,7 +28,7 @@ from tests.directory_provider_test import (
     FakeOsListdirEntryNamesProvider,
 )
 from tests.fake_entry_name_provider import FakeNoFilesStrategy
-from tests.fake_path_validator import FakeNonFilePathValidator
+from tests.fake_path_validator import FilePathValidator
 from tests.path_validator_test import (
     FakeDirectoryPathValidator,
     FakeExistingPathValidator,
@@ -90,14 +90,12 @@ class TestFileProvider(unittest.TestCase):
         )
 
         # Directory filter
-        self.non_file_path_validator = FakeNonFilePathValidator()
-        non_file_entry_validator = EntryAdapterForPathValidator(
-            self.non_file_path_validator
-        )
+        self.file_path_validator = FilePathValidator()
+        file_entry_validator = EntryAdapterForPathValidator(self.file_path_validator)
 
         file_factory = FileFactory()
         file_filter = FileFilter(
-            validator=non_file_entry_validator,
+            validator=file_entry_validator,
             factory=file_factory,
         )
 
@@ -113,7 +111,7 @@ class TestFileProvider(unittest.TestCase):
         entries = self.converter.convert(
             SetEntryArguments(entry_names, self.directory_path)
         )
-        self.non_file_path_validator.update_files(
+        self.file_path_validator.update_files(
             {
                 entry.path: ("all_good.txt" in entry.name) or ("file" in entry.name)
                 for entry in entries
@@ -146,7 +144,7 @@ class TestFileProvider(unittest.TestCase):
         entries = self.converter.convert(
             SetEntryArguments(entry_names, self.directory_path)
         )
-        self.non_file_path_validator.update_files(
+        self.file_path_validator.update_files(
             {
                 entry.path: ("all_good.txt" in entry.name) or ("file" in entry.name)
                 for entry in entries
@@ -170,7 +168,7 @@ class TestFileProvider(unittest.TestCase):
         entries = self.converter.convert(
             SetEntryArguments(entry_names, self.directory_path)
         )
-        self.non_file_path_validator.update_files(
+        self.file_path_validator.update_files(
             {
                 entry.path: ("all_good.txt" in entry.name) or ("file" in entry.name)
                 for entry in entries
@@ -202,9 +200,7 @@ class TestFileProvider(unittest.TestCase):
             self.file_provider.get(self.directory_path)
 
     def test_get_with_non_directory_path(self):
-        self.directory_path_validator.update_directories(
-            {self.directory_path: False}
-        )
+        self.directory_path_validator.update_directories({self.directory_path: False})
 
         with self.assertRaises(NonDirectoryPathException):
             self.file_provider.get(self.directory_path)

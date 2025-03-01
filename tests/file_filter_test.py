@@ -23,7 +23,7 @@ from path.validator.path_exception import NotExistingPathException
 from tests.entry_validator_test import (
     FakeEntryWithInvalidCharactersMaker,
 )
-from tests.fake_path_validator import FakeNonFilePathValidator
+from tests.fake_path_validator import FilePathValidator
 from tests.path_validator_test import (
     FakeExistingPathValidator,
 )
@@ -34,7 +34,7 @@ class TestFileFilter(unittest.TestCase):
         self.invalid_characters_provider = LinuxInvalidEntryNameCharacterProvider()
 
         self.existing_path_validator = FakeExistingPathValidator()
-        self.non_file_path_validator = FakeNonFilePathValidator()
+        self.file_path_validator = FilePathValidator()
 
         invalid_characters_validator = InvalidEntryNameCharactersValidator(
             self.invalid_characters_provider
@@ -44,15 +44,13 @@ class TestFileFilter(unittest.TestCase):
         existing_entry_validator = EntryAdapterForPathValidator(
             self.existing_path_validator
         )
-        non_file_entry_validator = EntryAdapterForPathValidator(
-            self.non_file_path_validator
-        )
+        file_entry_validator = EntryAdapterForPathValidator(self.file_path_validator)
 
         filter_validators = [
             invalid_name_validator,
             invalid_characters_validator,
             existing_entry_validator,
-            non_file_entry_validator,
+            file_entry_validator,
         ]
 
         file_filter_validator = ValidatorManager[FileSystemEntry](
@@ -83,7 +81,7 @@ class TestFileFilter(unittest.TestCase):
                 path="directory1/directory1",
             ),
         }
-        self.non_file_path_validator.update_files(
+        self.file_path_validator.update_files(
             {entry.path: "file" in entry.name for entry in entries}
         )
 
@@ -174,7 +172,7 @@ class TestFileFilter(unittest.TestCase):
                 path="directory1/directory2",
             ),
         }
-        self.non_file_path_validator.update_files(
+        self.file_path_validator.update_files(
             {entry.path: "file" in entry.name for entry in entries}
         )
 

@@ -65,7 +65,7 @@ class FakeDirectoryPathValidator(IPathValidator):
             pass
 
 
-class FakeNonFilePathValidator(IPathValidator):
+class FilePathValidator(IPathValidator):
     def __init__(self, file_dictionary: dict[str, bool] | None = None):
         self.file_dictionary = file_dictionary
 

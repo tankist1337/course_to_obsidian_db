@@ -21,7 +21,7 @@ class NonePathValidator(IPathValidator):
             raise NonePathException("The path must be not None")
 
 
-class NonFilePathValidator(IPathValidator):
+class FilePathValidator(IPathValidator):
     def validate(self, item):
         if not os.path.isfile(item):
             raise NonDirectoryPathException(f"The path {item} is not a file")
