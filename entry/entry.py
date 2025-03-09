@@ -49,7 +49,7 @@ class FileSystemEntry:
         return False
 
     def __hash__(self):
-        return hash((self.name, self.path, self.directory_path))
+        return hash((self.path))
 
 
 class Directory(FileSystemEntry):
@@ -59,7 +59,7 @@ class Directory(FileSystemEntry):
         return False
 
     def __hash__(self):
-        return hash((self.name, self.path, self.directory_path))
+        return hash((self.path))
 
 
 class File(FileSystemEntry):
@@ -69,4 +69,4 @@ class File(FileSystemEntry):
         return False
 
     def __hash__(self):
-        return hash((self.name, self.path, self.directory_path))
+        return hash((self.path))
