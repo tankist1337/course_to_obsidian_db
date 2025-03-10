@@ -8,92 +8,50 @@ from path.validator.path_exception import (
 from path.validator.path_validator import IPathValidator
 
 
-class FakeExistingPathValidator(IPathValidator):
-    def __init__(self, existing_path_dictionary: dict[str, bool] | None = None):
-        self.existing_path_dictionary = existing_path_dictionary
+class FakeExistingPathValidator:
+    @staticmethod
+    def validate(path: str):
+        existing_paths = set[str](
+            {
+                "directory/for/tests/",
+                "directory/for/tests",
+                "directory/for/tests/directory1",
+                "directory/for/tests/file2",
+                "directory/for/tests/file1.txt",
+            }
+        )
 
-    def set_existing_paths(self, existing_path_dictionary: dict[str, bool]):
-        self.existing_path_dictionary = existing_path_dictionary
-
-    def update_existing_paths(self, *args: dict[str, bool]):
-        merged_dictionary = {}
-        for dictionary in args:
-            merged_dictionary.update(dictionary)
-
-        if self.existing_path_dictionary:
-            self.existing_path_dictionary.update(merged_dictionary)
-        else:
-            self.set_existing_paths(merged_dictionary)
-
-    def validate(self, item):
-        if self.existing_path_dictionary is not None:
-            if not self.existing_path_dictionary.get(item):  # type: ignore
-                raise NotExistingPathException(f'The path "{item}" does not exist')
-        else:
-            # All paths are existing
-            pass
+        if path not in existing_paths:
+            raise NotExistingPathException(f"{path} isn't existing")
 
 
-class FakeDirectoryPathValidator(IPathValidator):
-    def __init__(self, directory_dictionary: dict[str, bool] | None = None):
-        self.directory_dictionary = directory_dictionary
+class FakeDirectoryPathValidator:
+    @staticmethod
+    def validate(path: str):
+        directories = set[str](
+            {
+                "directory/for/tests/",
+                "directory/for/tests",
+                "directory/for/tests/directory1",
+            }
+        )
 
-    def __merge_dictionaries(self, *args: dict[str, bool]):
-        merged_dictionary = {}
-        for dictionary in args:
-            merged_dictionary.update(dictionary)
-
-        return merged_dictionary
-
-    def set_directories(self, *args: dict[str, bool]):
-        self.directory_dictionary = self.__merge_dictionaries(*args)
-
-    def update_directories(self, *args: dict[str, bool]):
-        directories = self.__merge_dictionaries(*args)
-
-        if self.directory_dictionary:
-            self.directory_dictionary.update(directories)
-        else:
-            self.set_directories(directories)
-
-    def validate(self, item):
-        if self.directory_dictionary is not None:
-            if not self.directory_dictionary.get(item):  # type: ignore
-                raise NonDirectoryPathException(f'The path "{item}" isn\'t a directory')
-        else:
-            # All paths are directories
-            pass
+        if path not in directories:
+            raise NonDirectoryPathException(f"{path} is not a directory")
 
 
-class FilePathValidator(IPathValidator):
-    def __init__(self, file_dictionary: dict[str, bool] | None = None):
-        self.file_dictionary = file_dictionary
+class FakeFilePathValidator:
+    @staticmethod
+    def validate(path: str):
+        files = set[str](
+            {
+                "directory/for/tests/file2",
+                "directory/for/tests/file1.txt",
+            }
+        )
 
-    def __merge_dictionaries(self, *args: dict[str, bool]):
-        merged_dictionary = {}
-        for dictionary in args:
-            merged_dictionary.update(dictionary)
-
-        return merged_dictionary
-
-    def set_files(self, *args: dict[str, bool]):
-        self.file_dictionary = self.__merge_dictionaries(*args)
-
-    def update_files(self, *args: dict[str, bool]):
-        files = self.__merge_dictionaries(*args)
-
-        if self.file_dictionary:
-            self.file_dictionary.update(files)
-        else:
-            self.set_files(files)
-
-    def validate(self, item):
-        if self.file_dictionary is not None:
-            if not self.file_dictionary.get(item):  # type: ignore
-                raise NonFilePathException(f'The path "{item}" isn\'t a directory')
-        else:
-            # All paths are directories
-            pass
+        if path not in files:
+            raise NonFilePathException(f"{path} is not a file")
 
 
 class FakePathValidator(IPathValidator, unittest.TestCase):

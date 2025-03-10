@@ -6,7 +6,6 @@ from entry.entry_exception import (
     InvalidEntryNameException,
 )
 from entry.entry_validator import (
-    EntryAdapterForPathValidator,
     InvalidEntryNameCharactersValidator,
     InvalidEntryNameValidator,
 )
@@ -16,15 +15,7 @@ from entry.invalid_entry_name_character_provider import (
 from entry.invalid_entry_names_provider import (
     LinuxInvalidEntryNameProvider,
 )
-from path.validator.path_exception import (
-    NonDirectoryPathException,
-    NotExistingPathException,
-)
 from tests.fake_entry_validator import FakeEntryWithInvalidCharactersMaker
-from tests.path_validator_test import (
-    FakeDirectoryPathValidator,
-    FakeExistingPathValidator,
-)
 
 
 class TestInvalidEntryNameValidator(unittest.TestCase):
@@ -83,57 +74,3 @@ class TestInvalidEntryNameCharactersValidator(unittest.TestCase):
         for entry in entries:
             with self.assertRaises(InvalidEntryNameCharacterException):
                 self.validator.validate(entry)
-
-
-class TestNotExistingEntryValidator(unittest.TestCase):
-    def setUp(self):
-        self.path_validator = FakeExistingPathValidator()
-        self.entry_validator = EntryAdapterForPathValidator(self.path_validator)
-
-    def test_validate_existing_entry(self):
-        entry = FileSystemEntry(
-            name="subdirectory2",
-            directory_path="directory/for/tests/",
-            path="directory/for/tests/subdirectory2",
-        )
-        self.path_validator.update_existing_paths({entry.path: True})
-
-        self.entry_validator.validate(entry)
-
-    def test_validate_not_existing_entry(self):
-        entry = FileSystemEntry(
-            name="not_existing_entry",
-            directory_path="path/to/directory/",
-            path="path/to/directory/not_existing_entry",
-        )
-        self.path_validator.update_existing_paths({entry.path: False})
-
-        with self.assertRaises(NotExistingPathException):
-            self.entry_validator.validate(entry)
-
-
-class TestNonDirectoryEntryValidator(unittest.TestCase):
-    def setUp(self):
-        self.path_validator = FakeDirectoryPathValidator()
-        self.entry_validator = EntryAdapterForPathValidator(self.path_validator)
-
-    def test_validate_directory(self):
-        entry = FileSystemEntry(
-            name="directory1",
-            directory_path="path/to/directory/",
-            path="path/to/directory/directory1",
-        )
-        self.path_validator.directory_dictionary = {entry.path: True}
-
-        self.entry_validator.validate(entry)
-
-    def test_validate_non_directory(self):
-        entry = FileSystemEntry(
-            name="file1",
-            directory_path="path/to/directory/",
-            path="path/to/directory/file1",
-        )
-        self.path_validator.directory_dictionary = {entry.path: False}
-
-        with self.assertRaises(NonDirectoryPathException):
-            self.entry_validator.validate(entry)

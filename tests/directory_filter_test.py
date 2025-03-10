@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import MagicMock
 
 from base.validator import ValidatorManager
 from directory.directory_filter import DirectoryFilter
@@ -19,11 +20,13 @@ from entry.invalid_entry_name_character_provider import (
 from entry.invalid_entry_names_provider import (
     LinuxInvalidEntryNameProvider,
 )
-from path.validator.path_exception import NotExistingPathException
+from path.validator.path_exception import (
+    NotExistingPathException,
+)
 from tests.entry_validator_test import (
     FakeEntryWithInvalidCharactersMaker,
 )
-from tests.path_validator_test import (
+from tests.fake_path_validator import (
     FakeDirectoryPathValidator,
     FakeExistingPathValidator,
 )
@@ -31,20 +34,25 @@ from tests.path_validator_test import (
 
 class TestDirectoryFilter(unittest.TestCase):
     def setUp(self):
-        self.invalid_characters_provider = LinuxInvalidEntryNameCharacterProvider()
+        invalid_characters_provider = LinuxInvalidEntryNameCharacterProvider()
         invalid_characters_validator = InvalidEntryNameCharactersValidator(
-            self.invalid_characters_provider
+            invalid_characters_provider
         )
-        self.invalid_names_provider = LinuxInvalidEntryNameProvider()
-        invalid_name_validator = InvalidEntryNameValidator(self.invalid_names_provider)
-        self.directory_path_validator = FakeDirectoryPathValidator()
+        invalid_names_provider = LinuxInvalidEntryNameProvider()
+        invalid_name_validator = InvalidEntryNameValidator(invalid_names_provider)
+        directory_path_validator = MagicMock()
+        directory_path_validator.validate.side_effect = (
+            FakeDirectoryPathValidator.validate
+        )
         directory_entry_validator = EntryAdapterForPathValidator(
-            self.directory_path_validator
+            directory_path_validator
         )
-        self.existing_path_validator = FakeExistingPathValidator()
-        existing_entry_validator = EntryAdapterForPathValidator(
-            self.existing_path_validator
+        existing_path_validator = MagicMock()
+        existing_path_validator.validate.side_effect = (
+            FakeExistingPathValidator.validate
         )
+        existing_entry_validator = EntryAdapterForPathValidator(existing_path_validator)
+
         validators = [
             invalid_name_validator,
             invalid_characters_validator,
@@ -52,45 +60,36 @@ class TestDirectoryFilter(unittest.TestCase):
             directory_entry_validator,
         ]
         validator_manager = ValidatorManager[FileSystemEntry](validators=validators)
-        self.directory_factory = DirectoryFactory()
+        directory_factory = DirectoryFactory()
 
         self.directory_filter = DirectoryFilter(
             validator=validator_manager,
-            directory_factory=self.directory_factory,
+            directory_factory=directory_factory,
         )
 
     def test_filter(self):
         entries = {
             FileSystemEntry(
                 name="file1.txt",
-                directory_path="directory1/",
-                path="directory1/file1.txt",
-            ),
-            FileSystemEntry(
-                name="file2",
-                directory_path="directory1/",
-                path="directory1/file2",
+                directory_path="directory/for/tests/",
+                path="directory/for/tests/file1.txt",
             ),
             FileSystemEntry(
                 name="directory1",
-                directory_path="directory1/",
-                path="directory1/directory1",
+                directory_path="directory/for/tests/",
+                path="directory/for/tests/directory1",
             ),
         }
-        self.directory_path_validator.update_directories(
-            {entry.path: "directory" in entry.name for entry in entries}
-        )
 
         directories = self.directory_filter.filter(entries)
 
         expected_directories = {
             Directory(
                 name="directory1",
-                directory_path="directory1/",
-                path="directory1/directory1",
+                directory_path="directory/for/tests/",
+                path="directory/for/tests/directory1",
             )
         }
-
         self.assertEqual(
             directories,
             expected_directories,
@@ -99,23 +98,19 @@ class TestDirectoryFilter(unittest.TestCase):
 
     def test_filter_with_not_existing_entry(self):
         entry = FileSystemEntry(
-            name="not_existing_directory1",
-            directory_path="directory1/",
-            path="directory1/not_existing_directory1",
+            name="not_existing_entry",
+            directory_path="directory/for/tests/",
+            path="directory/for/tests/not_existing_entry",
         )
         entries = {entry}
-        self.existing_path_validator.update_existing_paths(
-            {
-                entry.path: False,
-            }
-        )
 
         with self.assertRaises(NotExistingPathException):
             self.directory_filter.filter(entries)
 
     def test_filter_with_invalid_characters_in_name(self):
+        invalid_characters_provider = LinuxInvalidEntryNameCharacterProvider()
         invalid_entry_maker = FakeEntryWithInvalidCharactersMaker(
-            self.invalid_characters_provider
+            invalid_characters_provider
         )
         entries = invalid_entry_maker.get()
 
@@ -126,8 +121,8 @@ class TestDirectoryFilter(unittest.TestCase):
     def test_filter_with_empty_entry_name(self):
         entry = FileSystemEntry(
             name="",
-            directory_path="directory1/",
-            path="directory1/",
+            directory_path="directory/for/tests/",
+            path="directory/for/tests/",
         )
         entries = {entry}
 
@@ -135,15 +130,15 @@ class TestDirectoryFilter(unittest.TestCase):
             self.directory_filter.filter(entries)
 
     def test_filter_with_reserved_entry_name(self):
-        invalid_names = self.invalid_names_provider.get()
-
+        invalid_names_provider = LinuxInvalidEntryNameProvider()
+        invalid_names = invalid_names_provider.get()
         entries = {
             FileSystemEntry(
-                name=invalid_name,
-                directory_path="directory1/",
-                path=f"directory1/{invalid_name}",
+                name=name,
+                directory_path="directory/for/tests/",
+                path="directory/for/tests/" + name,
             )
-            for invalid_name in invalid_names
+            for name in invalid_names
         }
 
         for entry in entries:
@@ -154,26 +149,23 @@ class TestDirectoryFilter(unittest.TestCase):
         entries = {
             FileSystemEntry(
                 name="file1.txt",
-                directory_path="directory1/",
-                path="directory1/file1.txt",
+                directory_path="directory/for/tests/",
+                path="directory/for/tests/file1.txt",
             ),
             FileSystemEntry(
                 name="file2",
-                directory_path="directory1/",
-                path="directory1/file2",
+                directory_path="directory/for/tests/",
+                path="directory/for/tests/file2",
             ),
         }
-        self.directory_path_validator.update_directories(
-            {entry.path: "directory" in entry.name for entry in entries}
-        )
 
         filtered_entries = self.directory_filter.filter(entries)
 
         self.assertEqual(len(filtered_entries), 0, "There shouldn't be any directories")
 
     def test_filter_with_no_entries(self):
-        entry_paths = set()
+        entries = set()
 
-        directories = self.directory_filter.filter(entry_paths)
+        directories = self.directory_filter.filter(entries)
 
         self.assertEqual(len(directories), 0, "There shouldn't be any entries")
