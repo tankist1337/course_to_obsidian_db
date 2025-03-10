@@ -13,13 +13,13 @@ class TestPartConverter(unittest.TestCase):
         directories = {
             Directory(
                 name="directory1",
-                directory_path="directory1/",
-                path="directory1/directory1",
+                directory_path="directory/for/tests/",
+                path="directory/for/tests/directory1",
             ),
             Directory(
                 name="directory2",
-                directory_path="directory1/",
-                path="directory1/directory2",
+                directory_path="directory/for/tests/",
+                path="directory/for/tests/directory2",
             ),
         }
 
@@ -29,15 +29,15 @@ class TestPartConverter(unittest.TestCase):
             Part(
                 directory=Directory(
                     name="directory1",
-                    directory_path="directory1/",
-                    path="directory1/directory1",
+                    directory_path="directory/for/tests/",
+                    path="directory/for/tests/directory1",
                 )
             ),
             Part(
                 directory=Directory(
                     name="directory2",
-                    directory_path="directory1/",
-                    path="directory1/directory2",
+                    directory_path="directory/for/tests/",
+                    path="directory/for/tests/directory2",
                 )
             ),
         }
