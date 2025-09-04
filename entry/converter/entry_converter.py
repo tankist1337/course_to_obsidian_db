@@ -4,7 +4,6 @@ from entry.converter.entry_arguments import (
     ArgumentsToConvertToEntry,
     SetEntryArguments,
     SingleEntryArguments,
-    ListEntryArguments,
 )
 from entry.entry import FileSystemEntry
 from entry.separator_provider import ISeparatorProvider
@@ -36,33 +35,6 @@ class SingleEntryConverter(IEntryConverter[SingleEntryArguments, FileSystemEntry
             directory_path=arguments.directory_path,
             path=path,
         )
-
-
-class ListEntryConverter(IEntryConverter[ListEntryArguments, list[FileSystemEntry]]):
-    def __init__(self, separator_provider: ISeparatorProvider):
-        self.separator_provider = separator_provider
-
-    def convert(self, arguments: ListEntryArguments) -> list[FileSystemEntry]:
-        # todo: review it later
-        is_path_not_closed_by_separator = not arguments.directory_path.endswith(
-            self.separator_provider.get()
-        )
-
-        entries = []
-
-        for name in arguments.names:
-            path = arguments.directory_path
-            if is_path_not_closed_by_separator:
-                path += self.separator_provider.get()
-            path += name
-
-            entry = FileSystemEntry(
-                name=name, directory_path=arguments.directory_path, path=path
-            )
-
-            entries.append(entry)
-
-        return entries
 
 
 class SetEntryConverter(IEntryConverter[SetEntryArguments, set[FileSystemEntry]]):
