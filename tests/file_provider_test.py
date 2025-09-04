@@ -121,9 +121,7 @@ class TestFileProvider(unittest.TestCase):
                 path="directory/for/tests/file2",
             ),
         }
-        self.assertEqual(
-            files, expected_files, "Directories aren't the same as expected"
-        )
+        self.assertEqual(files, expected_files, "Files aren't the same as expected")
 
     def test_get_with_not_existing_directory_path(self):
         directory_path = "not_existing_path"
