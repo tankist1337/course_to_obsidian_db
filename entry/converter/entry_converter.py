@@ -6,7 +6,7 @@ from entry.converter.entry_arguments import (
     SingleEntryArguments,
 )
 from entry.entry import FileSystemEntry
-from entry.separator_provider import ISeparatorProvider
+from entry.path_normalizer import IPathNormalizer
 
 
 class IEntryConverter[T: ArgumentsToConvertToEntry, Y](ABC):
@@ -16,49 +16,35 @@ class IEntryConverter[T: ArgumentsToConvertToEntry, Y](ABC):
 
 
 class SingleEntryConverter(IEntryConverter[SingleEntryArguments, FileSystemEntry]):
-    def __init__(self, separator_provider: ISeparatorProvider):
-        self.separator_provider = separator_provider
+    def __init__(self, path_normalizer: IPathNormalizer):
+        self.path_normalizer = path_normalizer
 
     def convert(self, arguments: SingleEntryArguments) -> FileSystemEntry:
-        # todo: review it later
-        is_path_not_closed_by_separator = not arguments.directory_path.endswith(
-            self.separator_provider.get()
+        directory_path = self.path_normalizer.ensure_trailing_separator(
+            arguments.directory_path
         )
-
-        path = arguments.directory_path
-        if is_path_not_closed_by_separator:
-            path += self.separator_provider.get()
-        path += arguments.name
+        path = directory_path + arguments.name
 
         return FileSystemEntry(
             name=arguments.name,
-            directory_path=arguments.directory_path,
+            directory_path=directory_path,
             path=path,
         )
 
 
 class SetEntryConverter(IEntryConverter[SetEntryArguments, set[FileSystemEntry]]):
-    def __init__(self, separator_provider: ISeparatorProvider):
-        self.separator_provider = separator_provider
+    def __init__(self, path_normalizer: IPathNormalizer):
+        self.path_normalizer = path_normalizer
 
     def convert(self, arguments: SetEntryArguments) -> set[FileSystemEntry]:
-        # todo: review it later
-        is_path_not_closed_by_separator = not arguments.directory_path.endswith(
-            self.separator_provider.get()
+        directory_path = self.path_normalizer.ensure_trailing_separator(
+            arguments.directory_path
         )
 
         entries = set()
-
         for name in arguments.names:
-            path = arguments.directory_path
-            if is_path_not_closed_by_separator:
-                path += self.separator_provider.get()
-            path += name
-
-            entry = FileSystemEntry(
-                name=name, directory_path=arguments.directory_path, path=path
-            )
-
+            path = directory_path + name
+            entry = FileSystemEntry(name=name, directory_path=directory_path, path=path)
             entries.add(entry)
 
         return entries

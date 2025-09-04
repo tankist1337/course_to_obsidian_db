@@ -19,6 +19,7 @@ from entry.invalid_entry_name_character_provider import (
     LinuxInvalidEntryNameCharacterProvider,
 )
 from entry.invalid_entry_names_provider import LinuxInvalidEntryNameProvider
+from entry.path_normalizer import DirectoryPathNormalizer
 from entry.separator_provider import LinuxSeparatorProvider
 from path.validator.path_exception import (
     NonDirectoryPathException,
@@ -51,7 +52,8 @@ class TestEntryProvider(unittest.TestCase):
         ]
         entry_validator = ValidatorManager[FileSystemEntry](validators=validators)
 
-        converter = SetEntryConverter(LinuxSeparatorProvider())
+        path_normalizer = DirectoryPathNormalizer(LinuxSeparatorProvider())
+        converter = SetEntryConverter(path_normalizer)
 
         self.entry_names_provider = MagicMock()
         self.entry_names_provider.get.return_value = {

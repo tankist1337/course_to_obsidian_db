@@ -9,6 +9,7 @@ from entry.converter.entry_converter import (
     SingleEntryConverter,
 )
 from entry.entry import FileSystemEntry
+from entry.path_normalizer import DirectoryPathNormalizer
 from entry.separator_provider import LinuxSeparatorProvider
 
 
@@ -16,9 +17,10 @@ class TestSingleEntryConverter(unittest.TestCase):
     def setUp(self):
         separator_provider = LinuxSeparatorProvider()
         self.separator = separator_provider.get()
-        self.converter = SingleEntryConverter(separator_provider)
+        self.path_normalizer = DirectoryPathNormalizer(separator_provider)
+        self.converter = SingleEntryConverter(self.path_normalizer)
 
-    def test_convert_path_is_not_closed_by_separator(self):
+    def test_convert_without_trailing_separator_in_path(self):
         name = "subdirectory1"
         directory_path = "directory/for/tests"
         arguments = SingleEntryArguments(name, directory_path)
@@ -32,7 +34,7 @@ class TestSingleEntryConverter(unittest.TestCase):
         )
         self.assertEqual(expected_entry, actual_entry, "Entry isn't as expected")
 
-    def test_convert_path_is_closed_by_separator(self):
+    def test_convert_with_trailing_separator_in_path(self):
         name = "subdirectory1"
         directory_path = "directory/for/tests/"
         arguments = SingleEntryArguments(name, directory_path)
@@ -107,7 +109,8 @@ class TestSetEntryConverter(unittest.TestCase):
     def setUp(self):
         separator_provider = LinuxSeparatorProvider()
         self.separator = separator_provider.get()
-        self.converter = SetEntryConverter(separator_provider)
+        path_normalizer = DirectoryPathNormalizer(separator_provider)
+        self.converter = SetEntryConverter(path_normalizer)
 
     def __assert_result(self, names, directory_path, separator, entries):
         expected = {
@@ -122,7 +125,7 @@ class TestSetEntryConverter(unittest.TestCase):
             entries, expected, "The entries do not match the expected ones"
         )
 
-    def test_convert_path_is_not_closed_by_separator(self):
+    def test_convert_with_trailing_separator_in_path(self):
         names = {"subdirectory1", "subdirectory2"}
         directory_path = "directory/for/tests"
         arguments = SetEntryArguments(names, directory_path)
@@ -131,7 +134,7 @@ class TestSetEntryConverter(unittest.TestCase):
 
         self.__assert_result(names, directory_path, self.separator, entries)
 
-    def test_convert_path_is_closed_by_separator(self):
+    def test_convert_without_trailing_separator_in_path(self):
         names = {"subdirectory1", "subdirectory2"}
         directory_path = "directory/for/tests/"
         arguments = SetEntryArguments(names, directory_path)
