@@ -112,12 +112,12 @@ class TestFileProvider(unittest.TestCase):
         expected_files = {
             File(
                 name="file1.txt",
-                directory_path="directory/for/tests",
+                directory_path="directory/for/tests/",
                 path="directory/for/tests/file1.txt",
             ),
             File(
                 name="file2",
-                directory_path="directory/for/tests",
+                directory_path="directory/for/tests/",
                 path="directory/for/tests/file2",
             ),
         }

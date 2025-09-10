@@ -111,7 +111,7 @@ class TestDirectoryProvider(unittest.TestCase):
         expected_directories = {
             Directory(
                 name="directory1",
-                directory_path="directory/for/tests",
+                directory_path="directory/for/tests/",
                 path="directory/for/tests/directory1",
             )
         }

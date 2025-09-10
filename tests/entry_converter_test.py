@@ -28,9 +28,9 @@ class TestSingleEntryConverter(unittest.TestCase):
         actual_entry = self.converter.convert(arguments)
 
         expected_entry = FileSystemEntry(
-            name=name,
-            directory_path=directory_path,
-            path=directory_path + self.separator + name,
+            name="subdirectory1",
+            directory_path="directory/for/tests/",
+            path="directory/for/tests/subdirectory1",
         )
         self.assertEqual(expected_entry, actual_entry, "Entry isn't as expected")
 
@@ -42,9 +42,9 @@ class TestSingleEntryConverter(unittest.TestCase):
         actual_entry = self.converter.convert(arguments)
 
         expected_entry = FileSystemEntry(
-            name=name,
-            directory_path=directory_path,
-            path=directory_path + name,
+            name="subdirectory1",
+            directory_path="directory/for/tests/",
+            path="directory/for/tests/subdirectory1",
         )
         self.assertEqual(expected_entry, actual_entry, "Entry isn't as expected")
 
@@ -56,9 +56,9 @@ class TestSingleEntryConverter(unittest.TestCase):
         actual_entry = self.converter.convert(arguments)
 
         expected_entry = FileSystemEntry(
-            name=name,
-            directory_path=directory_path,
-            path=directory_path + self.separator + name,
+            name="",
+            directory_path="directory/for/tests/",
+            path="directory/for/tests/",
         )
         self.assertEqual(expected_entry, actual_entry, "Entry isn't as expected")
 
@@ -70,9 +70,9 @@ class TestSingleEntryConverter(unittest.TestCase):
         actual_entry = self.converter.convert(arguments)
 
         expected_entry = FileSystemEntry(
-            name=name,
-            directory_path=directory_path,
-            path=directory_path + self.separator + name,
+            name="subdirectory1",
+            directory_path="/",
+            path="/subdirectory1",
         )
         self.assertEqual(expected_entry, actual_entry, "Entry isn't as expected")
 
@@ -84,9 +84,9 @@ class TestSingleEntryConverter(unittest.TestCase):
         actual_entry = self.converter.convert(arguments)
 
         expected_entry = FileSystemEntry(
-            name=name,
-            directory_path=directory_path,
-            path=directory_path + self.separator + name,
+            name="",
+            directory_path="/",
+            path="/",
         )
         self.assertEqual(expected_entry, actual_entry, "Entry isn't as expected")
 
@@ -98,9 +98,9 @@ class TestSingleEntryConverter(unittest.TestCase):
         actual_entry = self.converter.convert(arguments)
 
         expected_entry = FileSystemEntry(
-            name=name,
-            directory_path=directory_path,
-            path=directory_path + self.separator + name,
+            name="//\\$@!^#&!$&,.*!^$~%()",
+            directory_path='\\&!#$%^,.@#&*%:?"./',
+            path='\\&!#$%^,.@#&*%:?".///\\$@!^#&!$&,.*!^$~%()',
         )
         self.assertEqual(expected_entry, actual_entry, "Entry isn't as expected")
 
@@ -116,7 +116,7 @@ class TestSetEntryConverter(unittest.TestCase):
         expected = {
             FileSystemEntry(
                 name=name,
-                directory_path=directory_path,
+                directory_path=directory_path + separator,
                 path=directory_path + separator + name,
             )
             for name in names

@@ -36,37 +36,21 @@ C:\\home\\user\\projects\\project1\\lib\\main.py - for windows
   __    __    __        __        __   __
 """
 
+import dataclasses
 
+
+@dataclasses.dataclass(frozen=True)
 class FileSystemEntry:
-    def __init__(self, name: str, directory_path: str, path: str):
-        self.name = name
-        self.directory_path = directory_path
-        self.path = path
-
-    def __eq__(self, other):
-        if isinstance(other, FileSystemEntry):
-            return self.path == other.path
-        return False
-
-    def __hash__(self):
-        return hash((self.path))
+    name: str
+    directory_path: str
+    path: str
 
 
+@dataclasses.dataclass(frozen=True)
 class Directory(FileSystemEntry):
-    def __eq__(self, other):
-        if isinstance(other, Directory):
-            return self.path == other.path
-        return False
-
-    def __hash__(self):
-        return hash((self.path))
+    pass
 
 
+@dataclasses.dataclass(frozen=True)
 class File(FileSystemEntry):
-    def __eq__(self, other):
-        if isinstance(other, File):
-            return self.path == other.path
-        return False
-
-    def __hash__(self):
-        return hash((self.path))
+    pass
